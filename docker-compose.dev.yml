@@ -1,0 +1,21 @@
+version: "3.7"
+
+services:
+  buildmap:
+    build: ../buildmap
+    volumes:
+      - ../buildmap:/buildmap
+  tegola:
+    ports:
+      - 8888:8080
+  web:
+    build:
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./web:/app
+    ports:
+      - 8080:8080
+
+  db:
+    ports:
+      - 5442:5432

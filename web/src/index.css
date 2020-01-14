@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css?family=Raleway:700');
+@import "~mapbox-gl/dist/mapbox-gl.css";
+
+html {
+  width: 100%;
+  height: 100%;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #333;
+}
+body {
+  display: block !important;
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+}
+header {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  padding: 4px;
+  padding-top: 2px;
+  background-color: rgba(255, 255, 255, 0.75);
+  border-radius: 0px 0px 4px 0px;
+  border-right: 1px #ddd solid;
+  border-bottom: 1px #ddd solid;
+  font-size: 10px;
+}
+
+header, .mapboxgl-ctrl.mapboxgl-ctrl-attrib {
+  backdrop-filter: blur(3px) saturate(80%);
+}
+
+@media all and (display-mode: standalone) {
+  /* Hide header in PWA mode */
+  header {
+    display: none;
+  }
+}
+
+@media (max-height: 750px) {
+  #subtitle {
+    display: none;
+  }
+}
+
+h1 {
+  margin: 0px;
+  font-size: 20px;
+  font-family: 'Raleway', sans-serif;
+}
+h1 a {
+  color: #333;
+  text-decoration: none;
+}
+
+p {
+    margin-top: 1px;
+    margin-bottom: 4px
+}
+
+.mapboxgl-ctrl-attrib {
+  font-size: 10px;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+}
+
+#install-prompt {
+  margin-left: 2px;
+  position: absolute;
+  margin-right: 50px;
+  max-width: 250px;
+  padding: 4px;
+  top: 50px;
+  border-radius: 4px;
+  border: 1px #ddd solid;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+#install-button {
+    float: left;
+}
+
+#install-close {
+    float:right;
+}
+
+.btn {
+    font-size: 1.1em;
+    background-color: white;
+    border-radius: 4px;
+}

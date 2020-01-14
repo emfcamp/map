@@ -1,0 +1,8 @@
+{
+        "db_url": "postgresql://postgres@db/postgres",
+        "web_directory": "/web",
+        "base_url": "http://localhost:8080",
+        "tile_cache_dir": "/tmp/tilestache",
+        "output_directory": "/output",
+        "zoom_range": [ 7, 20 ]
+}

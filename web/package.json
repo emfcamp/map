@@ -1,0 +1,40 @@
+{
+  "name": "map.emfcamp.org",
+  "version": "1.0.0",
+  "description": "EMF map website",
+  "main": "map.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emfcamp/map.emfcamp.org.git"
+  },
+  "scripts": {
+    "start": "webpack-dev-server --open --config webpack.dev.js --mode development --host 0.0.0.0",
+    "build": "webpack --config webpack.prod.js --mode production",
+    "serve": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/emfcamp/map.emfcamp.org/issues"
+  },
+  "homepage": "https://github.com/emfcamp/map.emfcamp.org#readme",
+  "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
+    "css-loader": "^3.4.1",
+    "style-loader": "^1.1.2",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.1",
+    "html-webpack-plugin": "^3.2.0",
+    "serviceworker-webpack-plugin": "^1.0.1",
+    "webpack-merge": "^4.2.2"
+  },
+  "dependencies": {
+    "@turf/length": "^6.0.2",
+    "express": "^4.17.1",
+    "mapbox-gl": "^1.6.1",
+    "redom": "^3.24.3"
+  }
+}

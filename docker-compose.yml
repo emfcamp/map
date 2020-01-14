@@ -1,0 +1,35 @@
+version: "3.7"
+services:
+  buildmap:
+    volumes: 
+      - .:/config
+      - ../gis-2020:/gis-2020
+      - ./output:/output
+      - ./web-assets:/web
+    command: "/gis-2020/map.json /config/local.conf.json"
+    networks:
+      - default
+    depends_on:
+      - db
+  db:
+    image: "mdillon/postgis:11"
+    networks:
+      - default
+  tegola:
+    image: "gospatial/tegola:latest"
+    volumes:
+      - ./output:/opt/tegola_config
+      - ./tegola-cache:/tmp/tegola
+    command: "serve --config /opt/tegola_config/tegola.toml"
+    networks:
+      - web
+      - default
+  web:
+    build:
+      context: ./web
+    networks:
+      - web
+
+networks:
+  web:
+    name: web

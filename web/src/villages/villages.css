@@ -1,0 +1,64 @@
+.villages-ctrl {
+  min-height: 30px;
+  min-width: 30px;
+  background: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTkuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDI5OC42NjcgMjk4LjY2NyIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMjk4LjY2NyAyOTguNjY3OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4Ij4KPGc+Cgk8Zz4KCQk8cG9seWdvbiBwb2ludHM9IjE3MC42NjcsMTI4IDE3MC42NjcsMCAxMjgsMCAxMjgsMTI4IDAsMTI4IDAsMTcwLjY2NyAxMjgsMTcwLjY2NyAxMjgsMjk4LjY2NyAxNzAuNjY3LDI5OC42NjcgMTcwLjY2NywxNzAuNjY3ICAgICAyOTguNjY3LDE3MC42NjcgMjk4LjY2NywxMjggICAiIGZpbGw9IiMwMDAwMDAiLz4KCTwvZz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8L3N2Zz4K)
+    white;
+  background-repeat: no-repeat;
+  background-size: 15px 15px;
+  background-position: center;
+}
+
+.villages-create {
+  width: 290px;
+  min-height: 50px;
+  background-color: white;
+  top: 50%;
+  right: 40px;
+  position: absolute;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  box-shadow: 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+.villages-close {
+  float: right;
+}
+
+.villages-close:after {
+  content: 'x';
+}
+
+.villages-create label {
+  float: left;
+}
+
+.villages-create input {
+  float: right;
+  margin-left: 10px;
+  width: 200px;
+  font-size: 1.1em;
+}
+
+.villages-create .form-group {
+  padding-bottom: 5px;
+  clear: both;
+  overflow: auto;
+}
+
+.villages-create .error {
+  font-size: 0.8em;
+  font-weight: bold;
+  color: darkred;
+}
+
+.villages-object a:link,
+.villages-object a:visited {
+  color: #333;
+}
+
+.villages-object h3 {
+  font-size: 1.5em;
+}
