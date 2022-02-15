@@ -1,5 +1,5 @@
 {
-        "db_url": "postgresql://postgres@db/postgres",
+        "db_url": "postgresql://postgres:postgres@db/postgres",
         "web_directory": "/web",
         "base_url": "http://localhost:8080",
         "tile_cache_dir": "/tmp/tilestache",

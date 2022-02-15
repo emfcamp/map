@@ -3,20 +3,25 @@ services:
   buildmap:
     volumes: 
       - .:/config
-      - ../gis-2020:/gis-2020
+      - ../gis-2022:/gis-2022
       - ./output:/output
       - ./web-assets:/web
-    command: "/gis-2020/map.json /config/local.conf.json"
+    command: "/gis-2022/map.json /config/local.conf.json"
     networks:
       - default
     depends_on:
       - db
+
   db:
-    image: "mdillon/postgis:11"
+    image: "postgis/postgis:13-3.2"
     networks:
       - default
+    environment:
+      POSTGRES_PASSWORD: postgres
+      PROJ_NETWORK: "ON"
+
   tegola:
-    image: "gospatial/tegola:latest"
+    image: "gospatial/tegola:v0.14.0"
     volumes:
       - ./output:/opt/tegola_config
       - ./tegola-cache:/tmp/tegola

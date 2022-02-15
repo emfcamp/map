@@ -5,9 +5,11 @@ const common = require('./webpack.common.js');
 
 module.exports = merge(common, {
   plugins: [
-    new UglifyJSPlugin(),
     new webpack.DefinePlugin({
       DEV: JSON.stringify(false),
     }),
   ],
+  optimization: {
+    minimizer: [new UglifyJSPlugin()],
+  }
 });

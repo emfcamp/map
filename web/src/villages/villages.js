@@ -1,7 +1,7 @@
-import mapboxgl from 'mapbox-gl';
-import {el, text, mount, unmount, setChildren, setStyle} from 'redom';
+import maplibregl from 'maplibre-gl';
+import { el, text, mount, unmount, setChildren, setStyle } from 'redom';
 import './villages.css';
-import {VillageEditor} from './components.js';
+import { VillageEditor } from './components.js';
 
 class VillagesLayer {
   constructor(source, click_layer) {
@@ -30,12 +30,12 @@ class VillagesLayer {
     );
 
     if (feature.properties.owner == this._user_id) {
-      var edit_link = el('a', 'Edit', {href: '#'});
+      var edit_link = el('a', 'Edit', { href: '#' });
       edit_link.onclick = e => {
         e.preventDefault();
         var data = feature.properties;
-        data['lng'] = feature.geometry.coordinates[0];
-        data['lat'] = feature.geometry.coordinates[1];
+        data.lng = feature.geometry.coordinates[0];
+        data.lat = feature.geometry.coordinates[1];
         this.createForm(feature.properties, true);
         this.popup.remove();
       };
@@ -49,7 +49,7 @@ class VillagesLayer {
   addClickHandlers(map) {
     map.on('click', this._layer, e => {
       var feature = e.features[0];
-      this.popup = new mapboxgl.Popup()
+      this.popup = new maplibregl.Popup()
         .setLngLat(feature.geometry.coordinates.slice())
         .setDOMContent(this.description(feature))
         .addTo(map);
@@ -168,4 +168,4 @@ class VillagesLayer {
   }
 }
 
-export {VillagesLayer as default};
+export { VillagesLayer as default };

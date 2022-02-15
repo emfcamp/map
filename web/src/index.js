@@ -1,15 +1,15 @@
 import './index.css';
-import mapboxgl from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
 import map_style from './map_style.json';
 import LayerSwitcher from './layerswitcher.js';
 import DistanceMeasure from './distancemeasure.js';
 import VillagesEditor from './villages/villages.js';
 import runtime from 'serviceworker-webpack-plugin/lib/runtime';
 
-mapboxgl.accessToken = 'undefined';
-
 if (DEV) {
-  map_style['sources']['villages']['data'] = 'http://localhost:5000/api/map';
+  map_style.sources.villages.data = 'http://localhost:2342/api/map';
+  map_style.sources.site_plan.url =
+    'http://localhost:8888/capabilities/buildmap';
 }
 
 function init() {
@@ -21,23 +21,23 @@ function init() {
     Power: 'power_',
     Lighting: 'lighting_',
     Villages: 'villages_',
-    GSM: 'gsm_'
+    GSM: 'gsm_',
   };
   var layers_enabled = ['Villages'];
   var layer_switcher = new LayerSwitcher(layers, layers_enabled);
 
   layer_switcher.setInitialVisibility(map_style);
 
-  var map = new mapboxgl.Map({
+  var map = new maplibregl.Map({
     container: 'map',
     style: map_style,
     hash: true,
   });
 
-  map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+  map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
   map.addControl(
-    new mapboxgl.GeolocateControl({
+    new maplibregl.GeolocateControl({
       positionOptions: {
         enableHighAccuracy: true,
       },
@@ -46,7 +46,7 @@ function init() {
   );
 
   map.addControl(
-    new mapboxgl.ScaleControl({
+    new maplibregl.ScaleControl({
       maxWidth: 200,
       unit: 'metric',
     }),
@@ -96,7 +96,7 @@ document.getElementById('install-close').onclick = e => {
   e.preventDefault();
   install_prompt.style.display = 'none';
   localStorage.setItem('pwa_closed', true);
-}
+};
 
 if (document.readyState != 'loading') {
   init();
