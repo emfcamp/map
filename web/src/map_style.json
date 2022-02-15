@@ -1195,7 +1195,7 @@
       "layout": {
         "visibility": "visible",
         "text-field": "{name:latin}",
-        "text-font": ["Metropolis Light Italic", "Noto Sans Italic"],
+        "text-font": ["Open Sans Regular"],
         "text-transform": "uppercase",
         "text-size": {
           "base": 1,
@@ -1634,6 +1634,7 @@
       "minzoom": 15,
       "layout": {
         "text-field": "{id}",
+        "text-font": ["Open Sans Regular"],
         "text-size": 14,
         "text-offset": [-1, 0]
       },
@@ -1650,6 +1651,7 @@
       "minzoom": 15,
       "layout": {
         "text-field": "{name}",
+        "text-font": ["Open Sans Regular"],
         "text-size": 12,
         "text-offset": [-2, 0]
       },
@@ -1739,6 +1741,7 @@
       "layout": {
         "symbol-placement": "point",
         "text-field": "{text}",
+        "text-font": ["Open Sans Regular"],
         "text-justify": "center",
         "text-size": 14,
         "text-padding": 2,
@@ -2184,6 +2187,7 @@
       "maxzoom": 24,
       "layout": {
         "text-field": "Camping: {camping}",
+        "text-font": ["Open Sans Regular"],
         "text-justify": "center",
         "text-size": 13,
         "text-padding": 2,
@@ -2229,6 +2233,7 @@
       "maxzoom": 24,
       "layout": {
         "text-field": "{text}",
+        "text-font": ["Open Sans Regular"],
         "text-size": 12,
         "text-optional": false
       },
@@ -2265,6 +2270,7 @@
       "maxzoom": 24,
       "layout": {
         "text-field": "{name}",
+        "text-font": ["Open Sans Regular"],
         "text-offset": [0, -1.8],
         "text-size": {
           "stops": [

@@ -1,7 +1,8 @@
 const path = require('path');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ServiceWorkerWebpackPlugin = require('serviceworker-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyPlugin = require("copy-webpack-plugin");
+
 
 module.exports = {
   entry: './src/index.js',
@@ -22,8 +23,8 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             presets: [
-              ['@babel/preset-env', {targets: '> 0.25%'}]
-              ],
+              ['@babel/preset-env', { targets: '> 0.25%' }]
+            ],
           },
         },
       },
@@ -31,11 +32,16 @@ module.exports = {
     noParse: /(mapbox-gl)\.js$/,
   },
   plugins: [
+    // We need the CleanWebpackPlugin here because incremental compilation interferes with
+    // Workbox's InjectManifest.
+    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: 'src/index.html',
     }),
-    new ServiceWorkerWebpackPlugin({
-      entry: path.join(__dirname, 'src/sw.js'),
-    }),
+    new CopyPlugin({
+      patterns: [
+        { from: "static" }
+      ]
+    })
   ],
 };

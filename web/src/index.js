@@ -4,7 +4,6 @@ import map_style from './map_style.json';
 import LayerSwitcher from './layerswitcher.js';
 import DistanceMeasure from './distancemeasure.js';
 import VillagesEditor from './villages/villages.js';
-import runtime from 'serviceworker-webpack-plugin/lib/runtime';
 
 if (DEV) {
   map_style.sources.villages.data = 'http://localhost:2342/api/map';
@@ -60,8 +59,13 @@ function init() {
 
   map.addControl(layer_switcher, 'top-right');
 
-  if ('serviceWorker' in navigator) {
-    runtime.register();
+  // Note that we don't run InjectManifest or try to load the serviceworker in dev mode.
+  // This is because Workbox doesn't like the webpack hot-reloader.
+  // https://github.com/GoogleChrome/workbox/issues/1790
+  if ('serviceWorker' in navigator && !DEV) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js');
+    });
   }
 }
 
