@@ -1,6 +1,6 @@
 const webpack = require('webpack');
 const { merge } = require('webpack-merge');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require("terser-webpack-plugin");
 const { InjectManifest } = require('workbox-webpack-plugin');
 const common = require('./webpack.common.js');
 
@@ -17,6 +17,7 @@ module.exports = merge(common, {
     })
   ],
   optimization: {
-    minimizer: [new UglifyJSPlugin()],
+    minimize: true,
+    minimizer: [new TerserPlugin()],
   }
 });
