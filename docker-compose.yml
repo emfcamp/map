@@ -1,6 +1,7 @@
 version: "3.7"
 services:
   buildmap:
+    image: "ghcr.io/emfcamp/buildmap:latest"
     volumes: 
       - .:/config
       - ../gis-2022:/gis-2022
