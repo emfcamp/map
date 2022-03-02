@@ -23,6 +23,8 @@ services:
 
   tegola:
     image: "gospatial/tegola:v0.14.0"
+    ports:
+      - 8888:8080
     volumes:
       - ./output:/opt/tegola_config
       - ./tegola-cache:/tmp/tegola
@@ -31,8 +33,9 @@ services:
       - web
       - default
   web:
-    build:
-      context: ./web
+    image: "ghcr.io/emfcamp/map-web:latest"
+    ports:
+      - 8080:8080
     networks:
       - web
 

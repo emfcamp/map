@@ -5,16 +5,12 @@ services:
     build: ../buildmap
     volumes:
       - ../buildmap:/buildmap
-  tegola:
-    ports:
-      - 8888:8080
   web:
     build:
+      context: ./web
       dockerfile: Dockerfile.dev
     volumes:
       - ./web:/app
-    ports:
-      - 8080:8080
 
   db:
     ports:
