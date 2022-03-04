@@ -8,7 +8,7 @@
   "sources": {
     "openmaptiles": {
       "type": "vector",
-      "url": "https://api.maptiler.com/tiles/v3/tiles.json?key=4HQAZUSrAg563kYxgVEy"
+      "url": "https://api.maptiler.com/tiles/v3/tiles.json?key=iiaOS0kq1MPr2LlHPTSa"
     },
     "site_plan": {
       "type": "vector",
