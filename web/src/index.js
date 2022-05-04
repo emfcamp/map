@@ -9,6 +9,7 @@ if (DEV) {
   map_style.sources.villages.data = 'http://localhost:2342/api/map';
   map_style.sources.site_plan.url =
     'http://localhost:8888/capabilities/buildmap';
+  map_style.glyphs = "http://localhost:8080/fonts/{fontstack}/{range}.pbf";
 }
 
 function init() {
