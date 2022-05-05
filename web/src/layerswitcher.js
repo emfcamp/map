@@ -24,6 +24,11 @@ class LayerSwitcher {
         }
       }
     }
+
+    // Update the 'layers' URL SearchParam.
+    let url = new URL(window.location);
+    url.searchParams.set('layers', this._visible.join(','));
+    window.history.pushState(null, '', url.toString());
   }
 
   setInitialVisibility(style) {
@@ -31,6 +36,17 @@ class LayerSwitcher {
      * Modify a map style before adding to the map to set initial visibility states.
      * This prevents flash-of-invisible-layers.
      */
+
+    // Update visible layers from the URL SearchParam 'layers'.
+    var params = new URLSearchParams(document.location.search);
+    if (params.has('layers')) {
+      params.get('layers').split(',').forEach(layer => {
+        if (Object.keys(this._layers).includes(layer) && ! this._visible.includes(layer)) {
+          this._visible.push(layer);
+        }
+      });
+    }
+
     for (let layer of style['layers']) {
       for (let layer_name in this._layers) {
         let pref = this._layers[layer_name];
