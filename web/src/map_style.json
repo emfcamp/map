@@ -1406,23 +1406,53 @@
       }
     },
     {
-      "id": "structures_polygon",
+      "id": "structures_shadow",
       "type": "line",
       "source": "site_plan",
       "source-layer": "structures_polygon",
       "minzoom": 0,
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "rgba(0, 0, 0, 0.3)",
+        "line-width": 6,
+        "line-blur": 3
+      }
+    },
+    {
+      "id": "structures_polygon",
+      "type": "fill",
+      "source": "site_plan",
+      "source-layer": "structures_polygon",
+      "minzoom": 0,
+      "paint": {
+        "fill-color": "#B56289"
+      }
+    },
+    {
+      "id": "structures_outline",
+      "type": "line",
+      "source": "site_plan",
+      "source-layer": "structures_polygon",
+      "minzoom": 0,
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
       "paint": {
         "line-color": "rgba(90, 81, 31, 1)"
       }
     },
     {
-      "id": "structures_linestring",
+      "id": "structures_guys",
       "type": "line",
       "source": "site_plan",
-      "source-layer": "structures_linestring",
+      "source-layer": "structures_guys_&_poles_linestring",
       "minzoom": 0,
       "paint": {
-        "line-color": "rgba(90, 81, 31, 1)"
+        "line-color": "rgb(153, 144, 93)"
       }
     },
     {
