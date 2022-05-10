@@ -1456,6 +1456,17 @@
       }
     },
     {
+      "id": "structures_exits",
+      "type": "line",
+      "source": "site_plan",
+      "source-layer": "structures_exits_linestring",
+      "minzoom": 0,
+      "paint": {
+        "line-width": 3,
+        "line-color": "rgb(153, 144, 93)"
+      }
+    },
+    {
       "id": "structures_internal_linestring",
       "type": "line",
       "source": "site_plan",
