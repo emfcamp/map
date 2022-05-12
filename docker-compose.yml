@@ -12,6 +12,7 @@ services:
       - default
     depends_on:
       - db
+    restart: unless-stopped
 
   db:
     image: "postgis/postgis:13-3.2-alpine"
@@ -32,12 +33,18 @@ services:
     networks:
       - web
       - default
+    depends_on:
+      - db
+    restart: unless-stopped
+
+
   web:
     image: "ghcr.io/emfcamp/map-web:latest"
     ports:
       - 127.0.0.1:8080:8080
     networks:
       - web
+    restart: unless-stopped
 
 networks:
   web:
