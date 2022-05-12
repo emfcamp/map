@@ -12,7 +12,6 @@ services:
       - default
     depends_on:
       - db
-    restart: unless-stopped
 
   db:
     image: "postgis/postgis:13-3.2-alpine"
@@ -21,6 +20,7 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
       PROJ_NETWORK: "ON"
+    restart: unless-stopped
 
   tegola:
     image: "gospatial/tegola:v0.14.0"
