@@ -2144,6 +2144,8 @@
           "blue",
           "SSB 2",
           "blue",
+          "MD1 32 1",
+          "blue",
           "rgba(199, 33, 33, 1)"
         ],
         "circle-radius": 3
@@ -2188,6 +2190,8 @@
           "SSB 1",
           "blue",
           "SSB 2",
+          "blue",
+          "MD1 32 1",
           "blue",
           "rgba(199, 33, 33, 1)"
         ]
