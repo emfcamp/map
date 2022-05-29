@@ -16,7 +16,7 @@
     },
     "villages": {
       "type": "geojson",
-      "data": "https://www.emfcamp.org/api/map"
+      "data": "https://www.emfcamp.org/api/villages.geojson"
     }
   },
   "sprite": "https://openmaptiles.github.io/positron-gl-style/sprite",
@@ -1326,6 +1326,17 @@
       "source-layer": "areas_camping_polygon",
       "paint": {
         "fill-color": "rgba(227, 245, 227, 1)"
+      }
+    },
+    {
+      "id": "areas_camping_outline",
+      "type": "line",
+      "source": "site_plan",
+      "source-layer": "areas_camping_polygon",
+      "paint": {
+        "line-color": "rgba(10, 100, 10, 0.4)",
+        "line-blur": 7,
+        "line-width": 3
       }
     },
     {
