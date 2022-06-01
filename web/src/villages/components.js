@@ -1,90 +1,18 @@
-import {el, setChildren, mount, text} from 'redom';
+import { el, setChildren, mount, text } from 'redom';
 
-class VillageEditor {
-  constructor(map, data = {}, edit = false) {
+class PlaceVillageDialog {
+  constructor(map, villages = {}, edit = false) {
     this.map = map;
     this.el = el('.villages-create');
-    this.errorDiv = el('.error');
-    this.onClose = null;
-    this.onSubmit = null;
-    this.create(data, edit);
+    this.create(villages, edit);
   }
 
-  create(data, edit) {
-    var close_button = el('.villages-close');
-    close_button.onclick = () => {
-      if (this.onClose) {
-        this.onClose();
-      }
-    };
+  create(villages, edit) {
 
-    var submit_button = el('button', edit ? 'Update' : 'Create', {
-      disabled: !edit,
-    });
-
-    submit_button.onclick = () => {
-      if (this.onSubmit) {
-        this.onSubmit();
-      }
-    };
-
-    var submit_group = el('.form-group', submit_button);
-
-    if (edit) {
-      var delete_button = el('button', 'Delete');
-      delete_button.onclick = () => {
-        if (this.onDelete) {
-          this.onDelete();
-        }
-      };
-      mount(submit_group, delete_button);
-    }
-
-    this.location_selector = new LocationSelector(this.map, data.lng, data.lat);
-    this.location_selector.onSelect = () =>
-      submit_button.removeAttribute('disabled');
-
-    var form = el(
-      'form',
-      el(
-        '.form-group',
-        el('label', 'Name'),
-        el('input#nameField', {
-          value: data.name || '',
-        }),
-      ),
-      el(
-        '.form-group',
-        el('label', 'Wiki Page'),
-        el('input#wikiField', {
-          value: data.wiki_page || '',
-        }),
-      ),
-      this.location_selector,
-      submit_group,
-    );
-
-    setChildren(this.el, [
-      close_button,
-      el('h3', edit ? 'Edit Village' : 'Create Village'),
-      form,
-    ]);
   }
 
-  setError(error) {
-    setChildren(this.errorDiv, [text(error)]);
-    mount(this, this.errorDiv);
-  }
-
-  getData() {
-    var form = this.el;
-    return {
-      name: form.querySelector('#nameField').value,
-      wiki_page: form.querySelector('#wikiField').value,
-      location: [this.location_selector.lng, this.location_selector.lat],
-    };
-  }
 }
+
 
 class LocationSelector {
   constructor(map, lng = null, lat = null) {
@@ -136,7 +64,7 @@ class LocationSelector {
   }
 
   start() {
-    var cancel_link = el('a', 'cancel', {href: '#'});
+    var cancel_link = el('a', 'cancel', { href: '#' });
     cancel_link.onclick = e => {
       e.preventDefault();
       this.cancelClick();
@@ -176,4 +104,4 @@ class LocationSelector {
   }
 }
 
-export {LocationSelector, VillageEditor};
+export { LocationSelector };

@@ -6,7 +6,7 @@ import DistanceMeasure from './distancemeasure.js';
 import VillagesEditor from './villages/villages.js';
 
 if (DEV) {
-  map_style.sources.villages.data = 'http://localhost:2342/api/map';
+  map_style.sources.villages.data = 'http://localhost:2342/api/villages.geojson';
   map_style.sources.site_plan.url =
     'http://localhost:8888/capabilities/buildmap';
   map_style.glyphs = "http://localhost:8080/fonts/{fontstack}/{range}.pbf";
@@ -53,10 +53,14 @@ function init() {
   );
 
   map.addControl(new DistanceMeasure(), 'top-right');
+
+  /*
   map.addControl(
     new VillagesEditor('villages', 'villages_symbol'),
     'top-right',
   );
+  */
+
 
   map.addControl(layer_switcher, 'top-right');
 
