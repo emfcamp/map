@@ -17,6 +17,10 @@
     "villages": {
       "type": "geojson",
       "data": "https://www.emfcamp.org/api/villages.geojson"
+    },
+    "installations": {
+      "type": "geojson",
+      "data": "https://gist.githubusercontent.com/prehensile/b88c04be8c4694d7a5a85b613079e576/raw/d1effd6b6a7c25a1d83e638298c85a6fdc4ac09b/installations.json"
     }
   },
   "sprite": "https://openmaptiles.github.io/positron-gl-style/sprite",
@@ -1439,7 +1443,7 @@
       "source-layer": "structures_polygon",
       "minzoom": 0,
       "paint": {
-        "fill-color": "#B56289"
+        "fill-color": "rgb(144, 204, 214)"
       }
     },
     {
@@ -2314,7 +2318,7 @@
       "source-layer": "",
       "minzoom": 16,
       "paint": {
-        "circle-color": "rgba(114, 1, 123, 1)",
+        "circle-color": "rgb(246, 163, 24)",
         "circle-radius": {
           "stops": [
             [16, 6],
@@ -2329,6 +2333,48 @@
       "id": "villages_text",
       "type": "symbol",
       "source": "villages",
+      "source-layer": "",
+      "minzoom": 17,
+      "maxzoom": 24,
+      "layout": {
+        "text-field": "{name}",
+        "text-font": ["Open Sans Regular"],
+        "text-offset": [0, -1.8],
+        "text-size": {
+          "stops": [
+            [17, 11],
+            [24, 16]
+          ]
+        }
+      },
+      "paint": {
+        "text-halo-color": "rgba(244, 235, 247, 0.73)",
+        "text-halo-width": 2,
+        "text-halo-blur": 1
+      }
+    },
+    {
+      "id": "installations_symbol",
+      "type": "circle",
+      "source": "installations",
+      "source-layer": "",
+      "minzoom": 16,
+      "paint": {
+        "circle-color": "rgb(228, 20, 126)",
+        "circle-radius": {
+          "stops": [
+            [16, 5],
+            [24, 20]
+          ]
+        },
+        "circle-blur": 0.5,
+        "circle-stroke-width": 0.5
+      }
+    },
+    {
+      "id": "installations_text",
+      "type": "symbol",
+      "source": "installations",
       "source-layer": "",
       "minzoom": 17,
       "maxzoom": 24,
