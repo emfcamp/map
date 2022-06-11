@@ -1753,7 +1753,7 @@
       "id": "license_boundary",
       "type": "line",
       "source": "site_plan",
-      "source-layer": "license_boundary_polygon",
+      "source-layer": "license_license_boundary_polygon",
       "layout": {
         "line-cap": "round",
         "line-join": "round"
