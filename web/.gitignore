@@ -1,2 +1,7 @@
 node_modules
 dist
+
+public/pwa-*.png
+public/maskable-icon-*.png
+public/apple-touch-icon-*.png
+public/favicon.ico

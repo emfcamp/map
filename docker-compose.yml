@@ -4,17 +4,17 @@ services:
     image: "ghcr.io/emfcamp/buildmap:latest"
     volumes: 
       - .:/config
-      - ../gis-2022:/gis-2022
+      - ../gis-2024:/gis-2024
       - ./output:/output
       - ./web-assets:/web
-    command: "/gis-2022/map.json /config/local.conf.json"
+    command: "/gis-2024/map.json /config/local.conf.json"
     networks:
       - default
     depends_on:
       - db
 
   db:
-    image: "postgis/postgis:13-3.2-alpine"
+    image: "postgis/postgis:15-3.4-alpine"
     networks:
       - default
     environment:
@@ -23,7 +23,7 @@ services:
     restart: unless-stopped
 
   tegola:
-    image: "gospatial/tegola:v0.14.0"
+    image: "gospatial/tegola:v0.19.0"
     ports:
       - 127.0.0.1:8888:8080
     volumes:

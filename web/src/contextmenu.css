@@ -1,0 +1,34 @@
+.contextMenu {
+    position: relative;
+    background-color: white;
+    display: none;
+    width: fit-content;
+    border: 1px #aaa solid;
+    font-size: 15px;
+    border-radius: 3px;
+}
+
+.contextMenu ul {
+    padding: 0;
+    margin: 0;
+}
+
+.contextMenu li {
+    padding: 2px 8px 2px 20px;
+    list-style-type: none;
+    width: auto;
+    cursor: pointer;
+}
+
+.contextMenu li:hover {
+    background-color: #ddd;
+}
+
+.contextMenu li.disabled {
+    color: #999;
+    cursor: default;
+}
+
+.contextMenu li.disabled:hover {
+    background-color: white;
+}

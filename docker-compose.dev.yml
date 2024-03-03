@@ -5,6 +5,7 @@ services:
     build: ../buildmap
     volumes:
       - ../buildmap:/buildmap
+      - ../powerplan:/powerplan
   web:
     build:
       context: ./web
