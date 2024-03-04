@@ -1,5 +1,6 @@
 node_modules
 dist
+dev-dist
 
 public/pwa-*.png
 public/maskable-icon-*.png
