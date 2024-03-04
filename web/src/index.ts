@@ -9,6 +9,7 @@ import URLHash from '@russss/maplibregl-layer-switcher/urlhash'
 import DistanceMeasure from './distancemeasure'
 import ContextMenu from './contextmenu'
 import { roundPosition } from './util'
+import InstallControl from './installcontrol'
 
 if (import.meta.env.DEV) {
     map_style.sources.villages.data = 'http://localhost:2342/api/villages.geojson'
@@ -72,6 +73,7 @@ class EventMap {
         )
 
         this.map.addControl(new DistanceMeasure(), 'top-right')
+        this.map.addControl(new InstallControl(), 'top-left')
 
         /*
     map.addControl(
@@ -100,41 +102,6 @@ class EventMap {
             const [lng, lat] = roundPosition([coords.lng, coords.lat], this.map!.getZoom())
             navigator.clipboard.writeText(lat + ', ' + lng)
         })
-    }
-
-    showInstallPrompt() {
-        let deferredPrompt: any
-        const install_prompt = document.getElementById('install-prompt')
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
-            e.preventDefault()
-            if (localStorage.getItem('pwa_closed')) {
-                return
-            }
-            // Stash the event so it can be triggered later.
-            deferredPrompt = e
-            install_prompt!.style.display = 'block'
-        })
-
-        document.getElementById('install-button')!.onclick = (e) => {
-            e.preventDefault()
-            install_prompt!.style.display = 'none'
-            deferredPrompt.prompt()
-            deferredPrompt.userChoice.then((result) => {
-                if (result.outcome === 'accepted') {
-                    console.log('PWA choice accepted')
-                    // No need to do anything here, beforeinstallprompt won't be called if the app is installed
-                }
-                deferredPrompt = null
-            })
-        }
-
-        document.getElementById('install-close')!.onclick = (e) => {
-            e.preventDefault()
-            install_prompt!.style.display = 'none'
-            localStorage.setItem('pwa_closed', 'true')
-        }
     }
 }
 
