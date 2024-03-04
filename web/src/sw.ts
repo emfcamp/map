@@ -17,7 +17,8 @@ register('capabilities/buildmap', new StaleWhileRevalidate())
 register('maps', new StaleWhileRevalidate())
 
 try {
-    registerRoute(/\/$/, createHandlerBoundToURL('index.html'))
+    // Only catch requests to the root URL (a regex doesn't do this).
+    registerRoute(({ url }) => url.pathname.startsWith('/'), createHandlerBoundToURL('index.html'))
 } catch (e) {
     // This fails in dev as index.html is not in the manifest.
 }
