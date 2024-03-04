@@ -1,4 +1,5 @@
 import './index.css'
+import { registerSW } from 'virtual:pwa-register'
 import maplibregl from 'maplibre-gl'
 import map_style from './map_style.json'
 import Marker from './marker'
@@ -36,6 +37,7 @@ class EventMap {
     marker?: Marker
 
     init() {
+        registerSW({ immediate: true })
         const layers_enabled = ['Background', 'Structures', 'Paths', 'Villages']
         this.layer_switcher = new LayerSwitcher(this.layers, layers_enabled)
 
