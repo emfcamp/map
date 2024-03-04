@@ -33,8 +33,6 @@ class EventMap {
     marker?: Marker
 
     init() {
-        registerSW({ immediate: true })
-
         const layers_enabled = ['Villages']
         this.layer_switcher = new LayerSwitcher(this.layers, layers_enabled)
 

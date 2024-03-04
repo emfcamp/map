@@ -1,7 +1,7 @@
 import { createHandlerBoundToURL, precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching'
 import { clientsClaim } from 'workbox-core'
 import { StaleWhileRevalidate } from 'workbox-strategies'
-import { NavigationRoute, registerRoute } from 'workbox-routing'
+import { registerRoute } from 'workbox-routing'
 
 declare let self: ServiceWorkerGlobalScope
 
@@ -17,14 +17,9 @@ register('capabilities/buildmap', new StaleWhileRevalidate())
 register('maps', new StaleWhileRevalidate())
 
 try {
-    registerRoute(
-        new NavigationRoute(createHandlerBoundToURL('index.html'), {
-            denylist: [/\/stats/, /\/noc/, /\/power/],
-        })
-    )
+    registerRoute(/\/$/, createHandlerBoundToURL('index.html'))
 } catch (e) {
     // This fails in dev as index.html is not in the manifest.
-    console.error(e)
 }
 
 cleanupOutdatedCaches()
