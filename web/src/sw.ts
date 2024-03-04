@@ -18,7 +18,7 @@ register('maps', new StaleWhileRevalidate())
 
 try {
     // Only catch requests to the root URL (a regex doesn't do this).
-    registerRoute(({ url }) => url.pathname.startsWith('/'), createHandlerBoundToURL('index.html'))
+    registerRoute(({ url }) => url.pathname == '/', createHandlerBoundToURL('index.html'))
 } catch (e) {
     // This fails in dev as index.html is not in the manifest.
 }
