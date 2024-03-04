@@ -99,6 +99,7 @@ p {
   position: absolute;
   margin-right: 50px;
   max-width: 250px;
+  min-width: 200px;
   padding: 4px;
   top: 50px;
   border-radius: 4px;
