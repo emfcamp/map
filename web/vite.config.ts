@@ -23,6 +23,9 @@ export default defineConfig({
                 enabled: false,
                 type: 'module',
             },
+            strategies: 'injectManifest',
+            srcDir: 'src',
+            filename: 'sw.ts',
             registerType: 'autoUpdate',
             includeAssets: ['fonts/**/0-255.pbf', 'sprites/**', 'icon.svg', 'favicon.ico', '*.png'],
             manifest: {

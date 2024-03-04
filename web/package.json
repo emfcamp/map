@@ -48,6 +48,7 @@
         "typescript": "^5.1.6",
         "vite": "^5.1.4",
         "vite-plugin-pwa": "^0.19.2",
-        "workbox-window": "^5.1.4"
+        "workbox-core": "^7.0.0",
+        "workbox-window": "^7.0.0"
     }
 }
