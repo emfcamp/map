@@ -1,6 +1,4 @@
 import './index.css'
-// @ts-ignore: virtual module from vite-pwa
-import { registerSW } from 'virtual:pwa-register'
 import maplibregl from 'maplibre-gl'
 import map_style from './map_style.json'
 import Marker from './marker'
@@ -19,6 +17,11 @@ if (import.meta.env.DEV) {
 
 class EventMap {
     layers: Record<string, string> = {
+        Background: 'background_',
+        Slope: 'slope',
+        Hillshade: 'hillshade',
+        Structures: 'structures_',
+        Paths: 'paths_',
         'Buried Services': 'services_',
         Water: 'site_water_',
         DKs: 'dk_',
@@ -33,7 +36,7 @@ class EventMap {
     marker?: Marker
 
     init() {
-        const layers_enabled = ['Villages']
+        const layers_enabled = ['Background', 'Structures', 'Paths', 'Villages']
         this.layer_switcher = new LayerSwitcher(this.layers, layers_enabled)
 
         this.url_hash = new URLHash(this.layer_switcher)
