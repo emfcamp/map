@@ -1,0 +1,23 @@
+.marker-stop {
+    font-family: "Raleway", sans-serif;
+    font-size: 12px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    -webkit-text-stroke: 5px rgb(242, 243, 240);
+    color: #000;
+    paint-order: stroke fill;
+}
+
+.marker-stop::before {
+    content: "";
+    display: block;
+    background-color: #f0c900;
+    background-image: url("/icons/haltestelle.svg");
+    background-size: cover;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+}

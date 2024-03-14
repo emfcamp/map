@@ -9,10 +9,11 @@ import DistanceMeasure from './distancemeasure'
 import ContextMenu from './contextmenu'
 import { roundPosition } from './util'
 import InstallControl from './installcontrol'
+import TransitInfo from './transit'
 
 if (import.meta.env.DEV) {
-    map_style.sources.villages.data = 'http://localhost:2342/api/villages.geojson'
-    map_style.sources.site_plan.url = 'http://localhost:8888/capabilities/buildmap'
+//     map_style.sources.villages.data = 'http://localhost:2342/api/villages.geojson'
+//     map_style.sources.site_plan.url = 'http://localhost:8888/capabilities/buildmap'
     map_style.glyphs = 'http://localhost:8080/fonts/{fontstack}/{range}.pbf'
 }
 
@@ -35,6 +36,7 @@ class EventMap {
     layer_switcher?: LayerSwitcher
     url_hash?: URLHash
     marker?: Marker
+    transit_info?: TransitInfo
 
     init() {
         registerSW({ immediate: true })
@@ -78,12 +80,11 @@ class EventMap {
         this.map.addControl(new DistanceMeasure(), 'top-right')
         this.map.addControl(new InstallControl(), 'top-left')
 
-        /*
-    map.addControl(
-      new VillagesEditor('villages', 'villages_symbol'),
-      'top-right',
-    );
-    */
+        /*this.map.addControl(
+          new VillagesEditor('villages', 'villages_symbol'),
+          'top-right',
+        );*/
+
         this.map.addControl(this.layer_switcher, 'top-right')
         this.url_hash.enable(this.map)
 
@@ -105,6 +106,8 @@ class EventMap {
             const [lng, lat] = roundPosition([coords.lng, coords.lat], this.map!.getZoom())
             navigator.clipboard.writeText(lat + ', ' + lng)
         })
+
+        this.transit_info = new TransitInfo(this.map);
     }
 }
 
