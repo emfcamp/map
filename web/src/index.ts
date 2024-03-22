@@ -21,6 +21,7 @@ class EventMap {
         Background: 'background_',
         Slope: 'slope',
         Hillshade: 'hillshade',
+        'Aerial Imagery': 'ortho',
         Structures: 'structures_',
         Paths: 'paths_',
         'Buried Services': 'services_',

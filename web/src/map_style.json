@@ -27,6 +27,10 @@
             "type": "raster",
             "tiles": ["https://map.emfcamp.org/data/hillshade/{z}/{x}/{y}"],
             "attribution": "Elevation data © Environment Agency 2022. All rights reserved."
+        },
+        "ortho": {
+            "type": "raster",
+            "tiles": ["https://map.emfcamp.org/data/ortho/{z}/{x}/{y}"]
         }
     },
     "sprite": "https://openmaptiles.github.io/positron-gl-style/sprite",
@@ -1269,6 +1273,12 @@
             "type": "raster",
             "source": "hillshade",
             "minzoom": 5
+        },
+        {
+            "id": "ortho",
+            "type": "raster",
+            "source": "ortho",
+            "minzoom": 15
         },
         {
             "id": "background_areas_backstage",
