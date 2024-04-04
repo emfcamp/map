@@ -1427,6 +1427,20 @@
             }
         },
         {
+            "id": "structures_linestring",
+            "type": "line",
+            "source": "site_plan",
+            "source-layer": "structures_linestring",
+            "minzoom": 0,
+            "layout": {
+                "line-cap": "round",
+                "line-join": "round"
+            },
+            "paint": {
+                "line-color": "rgba(90, 81, 31, 1)"
+            }
+        },
+        {
             "id": "structures_guys",
             "type": "line",
             "source": "site_plan",
