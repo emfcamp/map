@@ -2,3 +2,4 @@ output/
 tegola-cache/
 web-assets/
 .vscode
+*.code-workspace
