@@ -1,6 +1,6 @@
 import { createHandlerBoundToURL, precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching'
 import { clientsClaim } from 'workbox-core'
-import { StaleWhileRevalidate } from 'workbox-strategies'
+import { StaleWhileRevalidate, NetworkFirst } from 'workbox-strategies'
 import { registerRoute } from 'workbox-routing'
 
 declare let self: ServiceWorkerGlobalScope
@@ -14,7 +14,10 @@ function register(match_url: string, strategy: any) {
 precacheAndRoute(self.__WB_MANIFEST)
 
 register('capabilities/buildmap', new StaleWhileRevalidate())
-register('maps', new StaleWhileRevalidate())
+
+// Cache map tiles using NetworkFirst for the moment - may be worth switching
+// to StaleWhileRevalidate closer to the event.
+register('maps', new NetworkFirst())
 
 try {
     // Only catch requests to the root URL (a regex doesn't do this).
