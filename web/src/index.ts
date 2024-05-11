@@ -1,7 +1,7 @@
 import './index.css'
 import { registerSW } from 'virtual:pwa-register'
 import maplibregl from 'maplibre-gl'
-import map_style from './map_style.json'
+import map_style from './map_style.ts'
 import Marker from './marker'
 import LayerSwitcher from '@russss/maplibregl-layer-switcher'
 import URLHash from '@russss/maplibregl-layer-switcher/urlhash'
