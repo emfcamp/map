@@ -7,6 +7,7 @@ import LayerSwitcher from '@russss/maplibregl-layer-switcher'
 import URLHash from '@russss/maplibregl-layer-switcher/urlhash'
 import DistanceMeasure from './distancemeasure'
 import ContextMenu from './contextmenu'
+import VillagesEditor from './villages'
 import { roundPosition } from './util'
 import InstallControl from './installcontrol'
 
@@ -79,12 +80,7 @@ class EventMap {
         this.map.addControl(new DistanceMeasure(), 'top-right')
         this.map.addControl(new InstallControl(), 'top-left')
 
-        /*
-    map.addControl(
-      new VillagesEditor('villages', 'villages_symbol'),
-      'top-right',
-    );
-    */
+        this.map.addControl(new VillagesEditor('villages', 'villages_symbol'), 'top-right')
         this.map.addControl(this.layer_switcher, 'top-right')
         this.url_hash.enable(this.map)
 

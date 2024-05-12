@@ -35,13 +35,6 @@
   float: left;
 }
 
-.villages-create input {
-  float: right;
-  margin-left: 10px;
-  width: 200px;
-  font-size: 1.1em;
-}
-
 .villages-create .form-group {
   padding-bottom: 5px;
   clear: both;
@@ -54,6 +47,40 @@
   color: darkred;
 }
 
+.villages-create p {
+  font-size: 0.9em;
+}
+
+.villages-create form {
+  margin-top: 1em;
+}
+
+.villages-create #village-status {
+  font-weight:bold;
+  padding: 3px;
+  background-color: #eee;
+  border-radius: 3px;
+}
+
+.villages-create label {
+  margin-right: 1em;
+}
+
+.villages-create label::after {
+  content: ':';
+}
+
+.villages-create button[type="submit"] {
+  font-size: 1.1em;
+  padding: 3px;
+  float: right;
+}
+
+.villages-object {
+  min-width: 150px;
+  margin-top: -10px;
+}
+
 .villages-object a:link,
 .villages-object a:visited {
   color: #333;
@@ -62,3 +89,4 @@
 .villages-object h3 {
   font-size: 1.5em;
 }
+
