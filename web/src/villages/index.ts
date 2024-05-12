@@ -88,7 +88,9 @@ class VillagesLayer {
         this._user_id = json.id
 
         this.villages = await villages_response.json()
-        setStyle(this._wrapper, 'display', 'block')
+        if (this.villages && this.villages.length > 0) {
+            setStyle(this._wrapper, 'display', 'block')
+        }
     }
 
     onAdd(map: maplibregl.Map) {
