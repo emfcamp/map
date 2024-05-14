@@ -10,6 +10,7 @@ import ContextMenu from './contextmenu'
 import VillagesEditor from './villages'
 import { roundPosition } from './util'
 import InstallControl from './installcontrol'
+import ExportControl from './export/export'
 
 if (import.meta.env.DEV) {
     map_style.sources.villages.data = 'http://localhost:2342/api/villages.geojson'
@@ -81,6 +82,12 @@ class EventMap {
         this.map.addControl(new InstallControl(), 'top-left')
 
         this.map.addControl(new VillagesEditor('villages', 'villages_symbol'), 'top-right')
+
+        // Display edit control only on browsers which are likely to be desktop browsers
+        if (window.matchMedia('(min-width: 600px)').matches) {
+            this.map.addControl(new ExportControl(), 'top-right')
+        }
+
         this.map.addControl(this.layer_switcher, 'top-right')
         this.url_hash.enable(this.map)
 
@@ -106,7 +113,6 @@ class EventMap {
 }
 
 const em = new EventMap()
-window.em = em
 
 if (document.readyState != 'loading') {
     em.init()

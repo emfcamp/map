@@ -27,7 +27,7 @@ class VillagesLayer {
         }
         this.popup = null
 
-        this.button = el('button')
+        this.button = el('button', { title: 'Place village' })
         this._wrapper = el('div', this.button, {
             class: 'maplibregl-ctrl maplibregl-ctrl-group villages-ctrl',
             style: 'display:none',
@@ -105,6 +105,12 @@ class VillagesLayer {
 
         this.getUserDetails()
         return this._wrapper
+    }
+
+    onRemove() {
+        if (this.popup) {
+            this.popup.remove()
+        }
     }
 
     createForm() {

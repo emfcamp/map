@@ -21,6 +21,7 @@ class DistanceMeasure implements maplibregl.IControl {
             type: 'button',
             'aria-label': 'DistanceMeasure',
             'aria-pressed': 'false',
+            title: 'Measure distance',
         })
         this._geojson = {
             type: 'FeatureCollection',
