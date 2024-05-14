@@ -41,7 +41,7 @@ class ExportControl implements maplibregl.IControl {
             center: this._map!.getCenter(),
             pixelRatio: this.pixelRatio,
             // The maximum size may be limited by the graphics card.
-            maxCanvasSize: [16384, 16384],
+            maxCanvasSize: [4096, 4096],
             zoom: this.exportZoom,
             // NB: bearing and pitch not supported
             interactive: false,
