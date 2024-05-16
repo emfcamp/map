@@ -305,22 +305,6 @@ const layers: LayerSpecificationWithZIndex[] = [
         },
     },
     {
-        id: 'trees',
-        type: 'circle',
-        source: 'site_plan',
-        'source-layer': 'natural_trees_point',
-        minzoom: 13,
-        maxzoom: 0,
-        layout: {},
-        paint: {
-            'circle-color': 'rgba(135, 118, 29, 1)',
-            'circle-stroke-color': '#528329',
-            'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 15, 0.5, 19, 10],
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 15, 0, 17, 3],
-            'circle-blur': 0,
-        },
-    },
-    {
         id: 'buildings',
         type: 'fill-extrusion',
         source: 'site_plan',
@@ -968,6 +952,20 @@ const layers: LayerSpecificationWithZIndex[] = [
             'circle-blur': 0.5,
             'circle-stroke-width': 0.5,
         },
+    },
+    {
+        id: 'trees',
+        type: 'symbol',
+        source: 'site_plan',
+        'source-layer': 'natural_trees_point',
+        minzoom: 13,
+        layout: {
+            'icon-image': 'tree',
+            'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 14, 0.01, 22, 2],
+            'icon-allow-overlap': true,
+            'icon-rotate': ['%', ['*', ['get', 'gid'], 200], 360],
+        },
+        paint: {},
     },
     {
         id: 'villages_text',

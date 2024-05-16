@@ -23,7 +23,7 @@ async function loadIcons(map: maplibregl.Map) {
     const ratio = Math.min(Math.round(window.devicePixelRatio), 2)
     const icons = manifest[ratio.toString()]
 
-    const images = ['camping', 'no-access', 'water']
+    const images = ['camping', 'no-access', 'water', 'tree']
 
     Promise.all(
         images
