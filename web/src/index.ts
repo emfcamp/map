@@ -1,7 +1,7 @@
 import './index.css'
 import { registerSW } from 'virtual:pwa-register'
 import maplibregl from 'maplibre-gl'
-import map_style from './map_style.ts'
+import map_style from './style/map_style.ts'
 import Marker from './marker'
 import LayerSwitcher from '@russss/maplibregl-layer-switcher'
 import URLHash from '@russss/maplibregl-layer-switcher/urlhash'
@@ -11,11 +11,36 @@ import VillagesEditor from './villages'
 import { roundPosition } from './util'
 import InstallControl from './installcontrol'
 import ExportControl from './export/export'
+import { manifest } from 'virtual:render-svg'
 
 if (import.meta.env.DEV) {
     map_style.sources.villages.data = 'http://localhost:2342/api/villages.geojson'
     map_style.sources.site_plan.url = 'http://localhost:8888/capabilities/buildmap'
     map_style.glyphs = 'http://localhost:8080/fonts/{fontstack}/{range}.pbf'
+}
+
+async function loadIcons(map: maplibregl.Map) {
+    const ratio = Math.min(Math.round(window.devicePixelRatio), 2)
+    const icons = manifest[ratio.toString()]
+
+    const images = ['camping', 'no-access', 'water']
+
+    Promise.all(
+        images
+            .map((image) => async () => {
+                const img = await map.loadImage(icons[image])
+                map.addImage(image, img.data, { pixelRatio: ratio })
+            })
+            .map((f) => f())
+    )
+    /*
+    const sdfs = ['parking']
+
+    for (const sdf of sdfs) {
+        const img = await map.loadImage(`/sdf/${sdf}.png`)
+        map.addImage(sdf, img.data, { sdf: true })
+    }
+    */
 }
 
 class EventMap {
@@ -57,6 +82,7 @@ class EventMap {
                 dragRotate: false,
             })
         )
+        loadIcons(this.map)
 
         this.map.touchZoomRotate.disableRotation()
 

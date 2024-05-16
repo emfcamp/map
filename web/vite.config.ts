@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { renderSVG } from 'vite-plugin-render-svg'
 
 export default defineConfig({
     base: './',
@@ -55,6 +56,11 @@ export default defineConfig({
                 display: 'standalone',
                 theme_color: '#FB48C4',
             },
+        }),
+        renderSVG({
+            pattern: 'src/icons/*.svg',
+            urlPrefix: 'icons/',
+            outputOriginal: true,
         }),
     ],
 })
