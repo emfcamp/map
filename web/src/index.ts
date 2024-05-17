@@ -1,15 +1,18 @@
 import './index.css'
 import { registerSW } from 'virtual:pwa-register'
 import maplibregl from 'maplibre-gl'
-import map_style from './map_style.json'
+import map_style from './style/map_style.ts'
 import Marker from './marker'
 import LayerSwitcher from '@russss/maplibregl-layer-switcher'
 import URLHash from '@russss/maplibregl-layer-switcher/urlhash'
 import DistanceMeasure from './distancemeasure'
 import ContextMenu from './contextmenu'
+import VillagesEditor from './villages'
 import { roundPosition } from './util'
 import InstallControl from './installcontrol'
 import TransitInfo from './transit'
+import ExportControl from './export/export'
+import { manifest } from 'virtual:render-svg'
 
 if (import.meta.env.DEV) {
 //     map_style.sources.villages.data = 'http://localhost:2342/api/villages.geojson'
@@ -17,11 +20,36 @@ if (import.meta.env.DEV) {
     map_style.glyphs = 'http://localhost:8080/fonts/{fontstack}/{range}.pbf'
 }
 
+async function loadIcons(map: maplibregl.Map) {
+    const ratio = Math.min(Math.round(window.devicePixelRatio), 2)
+    const icons = manifest[ratio.toString()]
+
+    const images = ['camping', 'no-access', 'water', 'tree']
+
+    Promise.all(
+        images
+            .map((image) => async () => {
+                const img = await map.loadImage(icons[image])
+                map.addImage(image, img.data, { pixelRatio: ratio })
+            })
+            .map((f) => f())
+    )
+    /*
+    const sdfs = ['parking']
+
+    for (const sdf of sdfs) {
+        const img = await map.loadImage(`/sdf/${sdf}.png`)
+        map.addImage(sdf, img.data, { sdf: true })
+    }
+    */
+}
+
 class EventMap {
     layers: Record<string, string> = {
         Background: 'background_',
         Slope: 'slope',
         Hillshade: 'hillshade',
+        'Aerial Imagery': 'ortho',
         Structures: 'structures_',
         Paths: 'paths_',
         'Buried Services': 'services_',
@@ -56,6 +84,7 @@ class EventMap {
                 dragRotate: false,
             })
         )
+        loadIcons(this.map)
 
         this.map.touchZoomRotate.disableRotation()
 
@@ -80,10 +109,13 @@ class EventMap {
         this.map.addControl(new DistanceMeasure(), 'top-right')
         this.map.addControl(new InstallControl(), 'top-left')
 
-        /*this.map.addControl(
-          new VillagesEditor('villages', 'villages_symbol'),
-          'top-right',
-        );*/
+
+        this.map.addControl(new VillagesEditor('villages', 'villages_symbol'), 'top-right')
+
+        // Display edit control only on browsers which are likely to be desktop browsers
+        if (window.matchMedia('(min-width: 600px)').matches) {
+            this.map.addControl(new ExportControl(loadIcons), 'top-right')
+        }
 
         this.map.addControl(this.layer_switcher, 'top-right')
         this.url_hash.enable(this.map)
@@ -112,7 +144,6 @@ class EventMap {
 }
 
 const em = new EventMap()
-window.em = em
 
 if (document.readyState != 'loading') {
     em.init()

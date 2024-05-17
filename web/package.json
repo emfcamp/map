@@ -22,7 +22,7 @@
     },
     "homepage": "https://github.com/emfcamp/map.emfcamp.org#readme",
     "devDependencies": {
-        "@russss/maplibregl-layer-switcher": "^1.2.2",
+        "@russss/maplibregl-layer-switcher": "^1.2.4",
         "@turf/length": "^6.5.0",
         "@types/express": "^4.17.17",
         "@types/geojson": "^7946.0.10",
@@ -38,7 +38,7 @@
         "lodash.invert": "^4.3.0",
         "lodash.isequal": "^4.5.0",
         "lodash.sortby": "^4.7.0",
-        "maplibre-gl": "^4.1.0",
+        "maplibre-gl": "^4.2.0",
         "pmtiles": "^2.10.0",
         "prettier": "^3.0.0",
         "proj4": "^2.9.0",
@@ -50,5 +50,8 @@
         "vite-plugin-pwa": "^0.19.2",
         "workbox-core": "^7.0.0",
         "workbox-window": "^7.0.0"
+    },
+    "dependencies": {
+        "vite-plugin-render-svg": "^1.1.1"
     }
 }
