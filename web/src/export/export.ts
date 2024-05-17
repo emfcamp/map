@@ -10,6 +10,11 @@ class ExportControl implements maplibregl.IControl {
     _map?: maplibregl.Map
     exportZoom: number = 18
     pixelRatio: number = 4
+    initFunc?: (map: maplibregl.Map) => void
+
+    constructor(initFunc?: (map: maplibregl.Map) => void) {
+        this.initFunc = initFunc
+    }
 
     doExport() {
         const srcContainer = this._map!._container
@@ -49,6 +54,9 @@ class ExportControl implements maplibregl.IControl {
             fadeDuration: 0,
             attributionControl: false,
         })
+        if (this.initFunc) {
+            this.initFunc(renderMap)
+        }
 
         renderMap.once('idle', () => {
             const canvas = renderMap.getCanvas()

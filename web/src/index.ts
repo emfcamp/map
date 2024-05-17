@@ -111,7 +111,7 @@ class EventMap {
 
         // Display edit control only on browsers which are likely to be desktop browsers
         if (window.matchMedia('(min-width: 600px)').matches) {
-            this.map.addControl(new ExportControl(), 'top-right')
+            this.map.addControl(new ExportControl(loadIcons), 'top-right')
         }
 
         this.map.addControl(this.layer_switcher, 'top-right')
