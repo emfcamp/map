@@ -86,32 +86,39 @@ class EventMap {
 
         this.map.touchZoomRotate.disableRotation()
 
-        this.map.addControl(new maplibregl.NavigationControl(), 'top-right')
+        const url = new URL(window.location.href)
+        const embed = url.searchParams.get('embed') == 'true'
 
-        this.map.addControl(
-            new maplibregl.GeolocateControl({
-                positionOptions: {
-                    enableHighAccuracy: true,
-                },
-                trackUserLocation: true,
-            })
-        )
+        if (!embed) {
+            this.map.addControl(new maplibregl.NavigationControl(), 'top-right')
 
-        this.map.addControl(
-            new maplibregl.ScaleControl({
-                maxWidth: 200,
-                unit: 'metric',
-            })
-        )
+            this.map.addControl(
+                new maplibregl.GeolocateControl({
+                    positionOptions: {
+                        enableHighAccuracy: true,
+                    },
+                    trackUserLocation: true,
+                })
+            )
 
-        this.map.addControl(new DistanceMeasure(), 'top-right')
-        this.map.addControl(new InstallControl(), 'top-left')
+            this.map.addControl(
+                new maplibregl.ScaleControl({
+                    maxWidth: 200,
+                    unit: 'metric',
+                })
+            )
 
-        this.map.addControl(new VillagesEditor('villages', 'villages_symbol'), 'top-right')
+            this.map.addControl(new DistanceMeasure(), 'top-right')
+            this.map.addControl(new InstallControl(), 'top-left')
 
-        // Display edit control only on browsers which are likely to be desktop browsers
-        if (window.matchMedia('(min-width: 600px)').matches) {
-            this.map.addControl(new ExportControl(loadIcons), 'top-right')
+            this.map.addControl(new VillagesEditor('villages', 'villages_symbol'), 'top-right')
+
+            // Display edit control only on browsers which are likely to be desktop browsers
+            if (window.matchMedia('(min-width: 600px)').matches) {
+                this.map.addControl(new ExportControl(loadIcons), 'top-right')
+            }
+        } else {
+            document.querySelector('header')!.style.display = 'none'
         }
 
         this.map.addControl(this.layer_switcher, 'top-right')
