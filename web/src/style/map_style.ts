@@ -1089,6 +1089,7 @@ const layers: LayerSpecificationWithZIndex[] = [
         source: 'site_plan',
         'source-layer': 'labels_point',
         minzoom: 16,
+        maxzoom: 21,
         layout: {
             'text-field': '{text}',
             'text-font': ['Raleway SemiBold'],
@@ -1109,6 +1110,7 @@ const layers: LayerSpecificationWithZIndex[] = [
         source: 'site_plan',
         'source-layer': 'labels_point',
         minzoom: 15,
+        maxzoom: 20,
         layout: {
             'text-field': '{text}',
             'text-font': ['Raleway SemiBold'],
