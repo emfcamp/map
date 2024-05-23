@@ -8,7 +8,7 @@ import URLHash from '@russss/maplibregl-layer-switcher/urlhash'
 import DistanceMeasure from './distancemeasure'
 import ContextMenu from './contextmenu'
 import VillagesEditor from './villages'
-import { roundPosition } from './util'
+import { roundPosition, fetchWithTimeout } from './util'
 import InstallControl from './installcontrol'
 import ExportControl from './export/export'
 import { manifest } from 'virtual:render-svg'
@@ -33,14 +33,40 @@ async function loadIcons(map: maplibregl.Map) {
             })
             .map((f) => f())
     )
-    /*
-    const sdfs = ['parking']
+
+    const sdfs = ['telehandler', 'golf-buggy', 'cherrypicker']
 
     for (const sdf of sdfs) {
         const img = await map.loadImage(`/sdf/${sdf}.png`)
         map.addImage(sdf, img.data, { sdf: true })
     }
-    */
+}
+
+let lastSuccessfulFetch = 0
+
+function updateVehicles(map: maplibregl.Map) {
+    if (map.getLayer('vehicles')?.visibility == 'none') return
+
+    fetchWithTimeout('https://geojson.thinkl33t.co.uk/')
+        .then((response) => response.json())
+        .then((data) => {
+            const source = map.getSource('vehicles') as maplibregl.GeoJSONSource
+            if (!source) return
+            source.setData(data)
+            lastSuccessfulFetch = Date.now()
+        })
+        .catch((error) => {
+            console.error(error)
+            if (Date.now() - lastSuccessfulFetch < 60000) return
+            const source = map.getSource('vehicles') as maplibregl.GeoJSONSource
+            if (!source) return
+            source.setData({ type: 'FeatureCollection', features: [] })
+        })
+}
+
+function initVehicles(map: maplibregl.Map) {
+    window.setTimeout(() => updateVehicles(map), 0)
+    window.setInterval(() => updateVehicles(map), 20000)
 }
 
 class EventMap {
@@ -58,6 +84,7 @@ class EventMap {
         Power: 'power_',
         Lighting: 'lighting_',
         Villages: 'villages_',
+        'Vehicle tracking': 'vehicles',
     }
     map?: maplibregl.Map
     layer_switcher?: LayerSwitcher
@@ -141,6 +168,12 @@ class EventMap {
         contextMenu.addItem('Copy coordinates', (_e, coords) => {
             const [lng, lat] = roundPosition([coords.lng, coords.lat], this.map!.getZoom())
             navigator.clipboard.writeText(lat + ', ' + lng)
+        })
+
+        initVehicles(this.map)
+
+        this.map.on('styledata', () => {
+            updateVehicles(this.map!)
         })
     }
 }
