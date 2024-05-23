@@ -8,7 +8,10 @@ declare let self: ServiceWorkerGlobalScope
 function register(match_url: string, strategy: any) {
     const prefix = '/'
 
-    registerRoute(({ url }) => url.pathname.startsWith(prefix + match_url), strategy)
+    registerRoute(
+        ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith(prefix + match_url),
+        strategy
+    )
 }
 
 precacheAndRoute(self.__WB_MANIFEST)
@@ -21,7 +24,10 @@ register('maps', new NetworkFirst())
 
 try {
     // Only catch requests to the root URL (a regex doesn't do this).
-    registerRoute(({ url }) => url.pathname == '/', createHandlerBoundToURL('index.html'))
+    registerRoute(
+        ({ url, sameOrigin }) => sameOrigin && url.pathname == '/',
+        createHandlerBoundToURL('index.html')
+    )
 } catch (e) {
     // This fails in dev as index.html is not in the manifest.
 }
