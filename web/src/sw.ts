@@ -20,7 +20,7 @@ register('capabilities/buildmap', new StaleWhileRevalidate())
 
 // Cache map tiles using NetworkFirst for the moment - may be worth switching
 // to StaleWhileRevalidate closer to the event.
-register('maps', new NetworkFirst())
+register('maps', new StaleWhileRevalidate())
 
 try {
     // Only catch requests to the root URL (a regex doesn't do this).
