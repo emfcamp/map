@@ -165,9 +165,13 @@ class EventMap {
             () => this.marker!.location != null
         )
 
-        contextMenu.addItem('Copy coordinates', (_e, coords) => {
+        contextMenu.addItem('Copy coordinates', (e, coords) => {
             const [lng, lat] = roundPosition([coords.lng, coords.lat], this.map!.getZoom())
-            navigator.clipboard.writeText(lat + ', ' + lng)
+            if (e.shiftKey) {
+                navigator.clipboard.writeText(lng + ', ' + lat)
+            } else {
+                navigator.clipboard.writeText(lat + ', ' + lng)
+            }
         })
 
         initVehicles(this.map)
