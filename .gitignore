@@ -3,3 +3,4 @@ tegola-cache/
 web-assets/
 .vscode
 *.code-workspace
+.idea/
