@@ -46,6 +46,14 @@ services:
       - web
     restart: unless-stopped
 
+  dk_geojson:
+    build:
+      context: ./dk_geojson
+    volumes:
+      - ./web-assets/noc:/noc
+    environment:
+      NETBOX_API_TOKEN: ${NETBOX_API_TOKEN}
+
 networks:
   web:
     name: web

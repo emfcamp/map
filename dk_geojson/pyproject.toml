@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "dk-geojson"
+version = "0.1.0"
+description = ""
+authors = ["Russ Garrett <russ@garrett.co.uk>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+sqlalchemy = "^2.0.30"
+psycopg2-binary = "^2.9.9"
+shapely = "^2.0.4"
+pynetbox = "^7.3.3"
+prometheus-api-client = "^0.5.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
