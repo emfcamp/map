@@ -82,14 +82,14 @@ for row in conn.execute(
 
     props = {
         "name": location["name"],
-        "netbox_url": f"https://netbox.c3noc.net/dcim/locations/{location.id}/",
+        "netbox_url": f"{NETBOX_URL}/dcim/locations/{location.id}/",
         "devices": sorted(
             (device_info(device) for device in devices), key=lambda x: x["type"]
         ),
         "racks": [
             {
                 "name": rack.name,
-                "url": f"https://netbox.c3noc.net/dcim/racks/{rack.id}",
+                "url": f"{NETBOX_URL}/dcim/racks/{rack.id}",
             }
             for rack in racks
         ],
