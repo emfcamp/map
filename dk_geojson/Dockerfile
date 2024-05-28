@@ -7,4 +7,4 @@ COPY ./generate_dk_geojson.py /
 
 ENV DB_URL "postgresql://postgres:postgres@db/postgres"
 
-CMD ["python3", "/generate_dk_geojson.py", "/noc"]
+CMD ["poetry", "run", "python3", "/generate_dk_geojson.py", "/noc"]
