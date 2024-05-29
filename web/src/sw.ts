@@ -1,6 +1,6 @@
 import { createHandlerBoundToURL, precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching'
 import { clientsClaim } from 'workbox-core'
-import { StaleWhileRevalidate } from 'workbox-strategies'
+import { StaleWhileRevalidate, CacheFirst } from 'workbox-strategies'
 import { registerRoute } from 'workbox-routing'
 
 declare let self: ServiceWorkerGlobalScope
@@ -19,6 +19,8 @@ precacheAndRoute(self.__WB_MANIFEST)
 register('capabilities/buildmap', new StaleWhileRevalidate())
 
 register('maps', new StaleWhileRevalidate({ cacheName: 'maps-20240527' }))
+
+register('data', new CacheFirst({ cacheName: 'basemaps-20240529' }))
 
 try {
     // Only catch requests to the root URL (a regex doesn't do this).
