@@ -1184,7 +1184,7 @@ const style: StyleSpecification = {
     sources: {
         openmaptiles: {
             type: 'vector',
-            url: 'https://api.maptiler.com/tiles/v3/tiles.json?key=iiaOS0kq1MPr2LlHPTSa',
+            tiles: ['https://map.emfcamp.org/data/uk/{z}/{x}/{y}'],
         },
         site_plan: {
             type: 'vector',
