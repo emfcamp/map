@@ -8,7 +8,7 @@ import json
 import pynetbox
 import os
 
-# prom = PrometheusConnect(url="http://polarize.camp.ccc.de:9090/", disable_ssl=True)
+prom = PrometheusConnect(url="https://prometheus.monitoring.emf.camp")
 
 NETBOX_URL = "https://netbox.noc.emfcamp.org/"
 
@@ -25,21 +25,20 @@ conn = engine.connect()
 features = []
 
 
-""" def get_monitoring_data():
-    data = prom.get_current_metric_value(
-        metric_name="probe_success", label_config={"job": "blackbox_icmp"}
-    )
+def get_monitoring_data():
+    data = prom.get_current_metric_value(metric_name="up")
     result = {}
     for row in data:
         if row["value"][1] == "1" and row["value"][0] > time() - 300:
-            result[row["metric"]["shortname"]] = True
+            result[row["metric"]["job"]] = True
         else:
-            result[row["metric"]["shortname"]] = False
+            result[row["metric"]["job"]] = False
 
     return result
 
 
-monitoring_data = get_monitoring_data() """
+# monitoring_data = get_monitoring_data()
+monitoring_data = {}
 
 
 def device_info(device):
@@ -82,6 +81,7 @@ for row in conn.execute(
 
     props = {
         "name": location["name"],
+        "dk": location["name"][:2] == "DK",
         "netbox_url": f"{NETBOX_URL}/dcim/locations/{location.id}/",
         "devices": sorted(
             (device_info(device) for device in devices), key=lambda x: x["type"]
