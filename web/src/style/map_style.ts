@@ -1185,6 +1185,8 @@ const style: StyleSpecification = {
         openmaptiles: {
             type: 'vector',
             tiles: ['https://map.emfcamp.org/data/uk/{z}/{x}/{y}'],
+            maxzoom: 14,
+            attribution: '© OpenMapTiles © OpenStreetMap contributors',
         },
         site_plan: {
             type: 'vector',
