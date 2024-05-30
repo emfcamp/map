@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 31 70" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
+    <g transform="matrix(0.149831,0,0,0.149831,-29.7414,-11.2431)">
+        <path d="M220,180L240,180L240,120L220,120L220,180" style="fill:rgb(76,76,76);fill-rule:nonzero;stroke:black;stroke-width:3px;"/>
+        <path d="M200,520L400,520L400,200L380,200C338.35,140.109 260,140 220,200L200,200L200,520Z" style="fill:rgb(43,169,255);fill-rule:nonzero;stroke:black;stroke-width:3px;stroke-linecap:round;stroke-linejoin:round;"/>
+        <path d="M200,200L220,200C260,140 340,140 380,200L400,200C358.387,118.701 240,120 200,200Z" style="fill:white;fill-rule:nonzero;stroke:black;stroke-width:3px;stroke-linecap:round;stroke-linejoin:round;"/>
+        <circle cx="230" cy="110" r="5"/>
+        <path d="M220.358,102.179C225.912,95.966 234.088,95.966 239.642,102.179" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:5px;stroke-linecap:round;stroke-linejoin:round;"/>
+        <path d="M213.93,94.519C223.186,85.199 236.814,85.199 246.07,94.519" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:5px;stroke-linecap:round;stroke-linejoin:round;"/>
+        <path d="M207.502,86.858C220.461,74.432 239.539,74.432 252.498,86.858" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:5px;stroke-linecap:round;stroke-linejoin:round;"/>
+        <path d="M200,520L210,520L210,540L240,540L240,520L360,520L360,540L390,540L390,520L400,520L200,520Z" style="fill:rgb(76,76,76);fill-rule:nonzero;stroke:black;stroke-width:3px;stroke-linecap:round;stroke-linejoin:round;"/>
+        <path d="M230,210C270,160 330.738,160.549 370,210L370,500L230,500L230,480L220,480L220,440L230,440L230,270L220,270L220,230L230,230L230,210Z" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3px;stroke-linecap:round;stroke-linejoin:round;"/>
+        <path d="M250,270L250,330L350,330L350,270L330,270L330,250L270,250L270,270L250,270Z" style="fill:rgb(0,255,27);fill-rule:nonzero;stroke:black;stroke-width:3px;"/>
+        <path d="M265,320L265,330" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3px;"/>
+        <path d="M275,320L275,330" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3px;"/>
+        <path d="M285,320L285,330" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3px;"/>
+        <path d="M295,320L295,330" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3px;"/>
+        <path d="M305,320L305,330" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3px;"/>
+        <path d="M315,320L315,330" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3px;"/>
+        <path d="M325,320L325,330" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3px;"/>
+        <path d="M335,320L335,330" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3px;"/>
+    </g>
+</svg>
