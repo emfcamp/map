@@ -10,6 +10,7 @@ import ContextMenu from './contextmenu'
 import VillagesEditor from './villages'
 import { roundPosition, fetchWithTimeout } from './util'
 import InstallControl from './installcontrol'
+import TransitInfo from './transit'
 import ExportControl from './export/export'
 import { manifest } from 'virtual:render-svg'
 
@@ -90,6 +91,7 @@ class EventMap {
     layer_switcher?: LayerSwitcher
     url_hash?: URLHash
     marker?: Marker
+    transit_info?: TransitInfo
 
     init() {
         registerSW({ immediate: true })
@@ -179,6 +181,8 @@ class EventMap {
         this.map.on('styledata', () => {
             updateVehicles(this.map!)
         })
+
+        this.transit_info = new TransitInfo(this.map);
     }
 }
 

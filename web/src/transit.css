@@ -1,0 +1,116 @@
+.marker-stop {
+    font-family: "Raleway", sans-serif;
+    font-size: 12px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    -webkit-text-stroke: 5px rgb(242, 243, 240);
+    color: #000;
+    paint-order: stroke fill;
+}
+
+.marker-stop::before {
+    content: "";
+    display: block;
+    background-color: #f0c900;
+    background-image: url("/icons/haltestelle.svg");
+    background-size: cover;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+}
+
+.marker-vehicle {
+    display: block;
+    width: 50px;
+    height: 25px;
+    background-image: url("/icons/bus.svg");
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: contain
+}
+
+.popup-vehicle .vehicle-name {
+    font-weight: bold;
+    font-size: 1.3em;
+}
+
+.popup-vehicle .vehicle-plate {
+    background: #ffd307;
+    font-family: monospace;
+    font-size: 1em;
+    padding: 2px 5px;
+    border-radius: 5px;
+    font-weight: bold;
+    margin: 7px auto;
+    width: fit-content;
+}
+
+.popup-vehicle .vehicle-stop {
+    font-size: 1.2em;
+}
+
+.popup-vehicle .vehicle-route span {
+    border-radius: 7px;
+    padding: 2px 5px;
+}
+
+.departure-board {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+}
+
+.departure-board .board-line {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / 4;
+    grid-gap: 2px 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 3px;
+    margin-bottom: 3px;
+}
+
+.departure-board .board-line:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.departure-board .time {
+    grid-column: 1;
+    font-weight: bold;
+    font-size: 1.3em;
+}
+
+.departure-board .time.on-time {
+    color: #528329;
+}
+
+.departure-board .time.slightly-late {
+    color: #F9E200;
+}
+
+.departure-board .time.late {
+    color: #F77F02;
+}
+
+.departure-board .time.cancelled {
+    color: red;
+    text-decoration: line-through;
+}
+
+.departure-board .destination {
+    grid-column: 2;
+    font-size: 1.2em;
+}
+
+.departure-board .platform {
+    grid-column: 3;
+    font-size: 1.5em;
+}
+
+.departure-board .operator, .departure-board .note {
+    grid-column: 1 / 4;
+}
