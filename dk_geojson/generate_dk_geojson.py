@@ -37,8 +37,10 @@ def get_monitoring_data():
     return result
 
 
-# monitoring_data = get_monitoring_data()
-monitoring_data = {}
+monitoring_data = get_monitoring_data()
+print(monitoring_data)
+
+# monitoring_data = {}
 
 
 def device_info(device):
@@ -47,11 +49,10 @@ def device_info(device):
         "type": device.device_type.display,
         "url": f"{NETBOX_URL}dcim/devices/{device.id}",
         "status": device.status.label,
-        "alive": False,
     }
 
-    # if device.name in monitoring_data:
-    #    info["alive"] = monitoring_data[device.name]
+    if device.name in monitoring_data:
+        info["alive"] = monitoring_data[device.name]
 
     return info
 
