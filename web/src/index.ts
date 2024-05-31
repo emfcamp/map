@@ -24,7 +24,7 @@ async function loadIcons(map: maplibregl.Map) {
     const ratio = Math.min(Math.round(window.devicePixelRatio), 2)
     const icons = manifest[ratio.toString()]
 
-    const images = ['camping', 'no-access', 'water', 'tree']
+    const images = ['camping', 'no-access', 'water', 'tree', 'datenklo']
 
     Promise.all(
         images
@@ -81,7 +81,8 @@ class EventMap {
         'Buried Services': 'services_',
         Water: 'site_water_',
         DKs: 'dk_',
-        'NOC-Physical': 'noc_',
+        Network: 'noc_',
+        'NOC Cables': 'noc_cable',
         Power: 'power_',
         Lighting: 'lighting_',
         Villages: 'villages_',
@@ -182,7 +183,7 @@ class EventMap {
             updateVehicles(this.map!)
         })
 
-        this.transit_info = new TransitInfo(this.map);
+        this.transit_info = new TransitInfo(this.map)
     }
 }
 
