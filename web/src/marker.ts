@@ -58,6 +58,10 @@ class Marker implements maplibregl.IControl {
         }
         this.updateLocation()
         this.urlHash.setParameter('m', this.getURLString())
+        window.parent.postMessage(
+            { type: 'emf-marker', lat: this.location ? this.location[1] : null, lon: this.location ? this.location[0] : null },
+            '*',
+        )
     }
 
     updateLocation() {

@@ -115,6 +115,7 @@ class EventMap {
 
     const url = new URL(window.location.href)
     const embed = url.searchParams.get('embed') == 'true'
+    const readonly = url.searchParams.get('readonly') == 'true'
 
     if (!embed) {
       this.map.addControl(new maplibregl.NavigationControl(), 'top-right')
@@ -146,10 +147,32 @@ class EventMap {
       }
     } else {
       document.querySelector('header')!.style.display = 'none'
+      this.map.on('load', () => {
+        this.map!.resize()
+      })
+      if (!readonly) {
+        this.map.on('click', (e: maplibregl.MapMouseEvent) => {
+          this.marker!.setLocation(e.lngLat)
+        })
+      }
+      const sendView = () => {
+        const c = this.map!.getCenter()
+        window.parent.postMessage(
+          { type: 'emf-view', zoom: this.map!.getZoom(), lat: c.lat, lon: c.lng },
+          '*',
+        )
+      }
+      this.map.on('moveend', sendView)
+      this.map.on('load', sendView)
     }
 
     this.map.addControl(this.layer_switcher, 'top-right')
     this.url_hash.enable(this.map)
+
+    const markerParam = url.searchParams.get('marker')
+    if (markerParam) {
+      this.marker!.setURLString(markerParam)
+    }
 
     this.map.addControl(this.marker, 'top-right')
 

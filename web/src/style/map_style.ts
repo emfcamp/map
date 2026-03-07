@@ -789,7 +789,7 @@ const style: StyleSpecification = {
     },
   },
   sprite: 'https://openmaptiles.github.io/positron-gl-style/sprite',
-  glyphs: 'https://map.emfcamp.org/tiles/font/{fontstack}/{range}',
+  glyphs: 'https://map.emfcamp.org/fonts/{fontstack}/{range}.pbf',
   layers: sortBy(layers, [(item) => item.zindex || 0]).map((item) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { zindex: _, ...new_item } = item
