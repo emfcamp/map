@@ -769,15 +769,18 @@ const style: StyleSpecification = {
     slope: {
       type: 'raster',
       tiles: ['https://map.emfcamp.org/tiles/slope/{z}/{x}/{y}'],
+      tileSize: 256,
       attribution: 'Elevation data © Environment Agency 2022. All rights reserved.',
     },
     hillshade: {
       type: 'raster',
       tiles: ['https://map.emfcamp.org/tiles/hillshade/{z}/{x}/{y}'],
+      tileSize: 256,
       attribution: 'Elevation data © Environment Agency 2022. All rights reserved.',
     },
     ortho: {
       type: 'raster',
+      tileSize: 256,
       tiles: ['https://map.emfcamp.org/tiles/ortho/{z}/{x}/{y}'],
     },
     vehicles: {
