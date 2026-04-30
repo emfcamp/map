@@ -4,7 +4,7 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'water',
         type: 'fill',
-        source: 'openmaptiles',
+        source: 'basemap',
         'source-layer': 'water',
         filter: ['==', '$type', 'Polygon'],
         layout: {
@@ -16,27 +16,12 @@ const layers: LayerSpecificationWithZIndex[] = [
         },
     },
     {
-        id: 'landcover_ice_shelf',
-        type: 'fill',
-        source: 'openmaptiles',
-        'source-layer': 'landcover',
-        maxzoom: 8,
-        filter: ['all', ['==', '$type', 'Polygon'], ['==', 'subclass', 'ice_shelf']],
-        layout: {
-            visibility: 'visible',
-        },
-        paint: {
-            'fill-color': 'hsl(0, 0%, 98%)',
-            'fill-opacity': 0.7,
-        },
-    },
-    {
         id: 'landuse_residential',
         type: 'fill',
-        source: 'openmaptiles',
+        source: 'basemap',
         'source-layer': 'landuse',
         maxzoom: 16,
-        filter: ['all', ['==', '$type', 'Polygon'], ['==', 'class', 'residential']],
+        filter: ['all', ['==', 'kind', 'residential']],
         layout: {
             visibility: 'visible',
         },
@@ -48,8 +33,8 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'waterway',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'waterway',
+        source: 'basemap',
+        'source-layer': 'water',
         filter: ['all', ['==', '$type', 'LineString']],
         layout: {
             visibility: 'visible',
@@ -61,11 +46,11 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'water_name',
         type: 'symbol',
-        source: 'openmaptiles',
-        'source-layer': 'water_name',
+        source: 'basemap',
+        'source-layer': 'water',
         filter: ['==', '$type', 'LineString'],
         layout: {
-            'text-field': '{name:latin}\n{name:nonlatin}',
+            'text-field': '{name}',
             'symbol-placement': 'line',
             'text-rotation-alignment': 'map',
             'symbol-spacing': 500,
@@ -82,8 +67,8 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'building',
         type: 'fill',
-        source: 'openmaptiles',
-        'source-layer': 'building',
+        source: 'basemap',
+        'source-layer': 'buildings',
         minzoom: 12,
         paint: {
             'fill-color': 'rgb(234, 234, 229)',
@@ -94,13 +79,13 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'tunnel_motorway_casing',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 6,
         filter: [
             'all',
             ['==', '$type', 'LineString'],
-            ['all', ['==', 'brunnel', 'tunnel'], ['==', 'class', 'motorway']],
+            ['all', ['has', 'is_tunnel'], ['==', 'kind', 'motorway']],
         ],
         layout: {
             'line-cap': 'butt',
@@ -115,13 +100,13 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'tunnel_motorway_inner',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 6,
         filter: [
             'all',
             ['==', '$type', 'LineString'],
-            ['all', ['==', 'brunnel', 'tunnel'], ['==', 'class', 'motorway']],
+            ['all', ['has', 'is_tunnel'], ['==', 'kind', 'motorway']],
         ],
         layout: {
             'line-cap': 'round',
@@ -136,10 +121,10 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'aeroway-taxiway',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'aeroway',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 12,
-        filter: ['all', ['in', 'class', 'taxiway']],
+        filter: ['all', ['==', 'kind', 'aeroway'], ['==', 'kind_detail', 'taxiway']],
         layout: {
             'line-cap': 'round',
             'line-join': 'round',
@@ -153,10 +138,10 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'aeroway-runway-casing',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'aeroway',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 11,
-        filter: ['all', ['in', 'class', 'runway']],
+        filter: ['==', 'kind', 'aeroway'],
         layout: {
             'line-cap': 'round',
             'line-join': 'round',
@@ -170,10 +155,10 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'aeroway-area',
         type: 'fill',
-        source: 'openmaptiles',
-        'source-layer': 'aeroway',
+        source: 'basemap',
+        'source-layer': 'landuse',
         minzoom: 4,
-        filter: ['all', ['==', '$type', 'Polygon'], ['in', 'class', 'runway', 'taxiway']],
+        filter: ['==', 'kind', 'aeroway'],
         layout: {
             visibility: 'visible',
         },
@@ -185,11 +170,11 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'aeroway-runway',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'aeroway',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 11,
         maxzoom: 24,
-        filter: ['all', ['in', 'class', 'runway'], ['==', '$type', 'LineString']],
+        filter: ['all', ['==', 'kind', 'aeroway'], ['==', '$type', 'LineString']],
         layout: {
             'line-cap': 'round',
             'line-join': 'round',
@@ -203,20 +188,17 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'highway_minor',
         type: 'line',
-        metadata: {
-            'mapbox:group': 'b6371a3f2f5a9932464fa3867530a2e5',
-        },
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 8,
-        filter: ['all', ['==', '$type', 'LineString'], ['in', 'class', 'minor', 'service', 'track']],
+        filter: ['==', 'kind', 'minor_road'],
         layout: {
             'line-cap': 'round',
             'line-join': 'round',
             visibility: 'visible',
         },
         paint: {
-            'line-color': 'hsl(0, 0%, 88%)',
+            'line-color': 'hsl(0, 0%, 80%)',
             'line-width': ['interpolate', ['exponential', 1.55], ['zoom'], 13, 1.8, 20, 20],
             'line-opacity': 0.9,
         },
@@ -224,14 +206,10 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'highway_major_casing',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 11,
-        filter: [
-            'all',
-            ['==', '$type', 'LineString'],
-            ['in', 'class', 'primary', 'secondary', 'tertiary', 'trunk'],
-        ],
+        filter: ['==', 'kind', 'major_road'],
         layout: {
             'line-cap': 'butt',
             'line-join': 'miter',
@@ -246,14 +224,10 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'highway_major_inner',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 11,
-        filter: [
-            'all',
-            ['==', '$type', 'LineString'],
-            ['in', 'class', 'primary', 'secondary', 'tertiary', 'trunk'],
-        ],
+        filter: ['==', 'kind', 'major_road'],
         layout: {
             'line-cap': 'round',
             'line-join': 'round',
@@ -267,14 +241,10 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'highway_major_subtle',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
+        source: 'basemap',
+        'source-layer': 'roads',
         maxzoom: 11,
-        filter: [
-            'all',
-            ['==', '$type', 'LineString'],
-            ['in', 'class', 'primary', 'secondary', 'tertiary', 'trunk'],
-        ],
+        filter: ['==', 'kind', 'major_road'],
         layout: {
             'line-cap': 'round',
             'line-join': 'round',
@@ -288,14 +258,10 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'highway_motorway_casing',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 6,
-        filter: [
-            'all',
-            ['==', '$type', 'LineString'],
-            ['all', ['!in', 'brunnel', 'bridge', 'tunnel'], ['==', 'class', 'motorway']],
-        ],
+        filter: ['==', 'kind', 'highway'],
         layout: {
             'line-cap': 'butt',
             'line-join': 'miter',
@@ -310,14 +276,10 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'highway_motorway_inner',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 6,
-        filter: [
-            'all',
-            ['==', '$type', 'LineString'],
-            ['all', ['!in', 'brunnel', 'bridge', 'tunnel'], ['==', 'class', 'motorway']],
-        ],
+        filter: ['==', 'kind', 'highway'],
         layout: {
             'line-cap': 'round',
             'line-join': 'round',
@@ -331,10 +293,10 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'highway_motorway_subtle',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
+        source: 'basemap',
+        'source-layer': 'roads',
         maxzoom: 6,
-        filter: ['all', ['==', '$type', 'LineString'], ['==', 'class', 'motorway']],
+        filter: ['==', 'kind', 'highway'],
         layout: {
             'line-cap': 'round',
             'line-join': 'round',
@@ -346,86 +308,16 @@ const layers: LayerSpecificationWithZIndex[] = [
         },
     },
     {
-        id: 'railway_transit',
-        type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
-        minzoom: 16,
-        filter: [
-            'all',
-            ['==', '$type', 'LineString'],
-            ['all', ['==', 'class', 'transit'], ['!in', 'brunnel', 'tunnel']],
-        ],
-        layout: {
-            visibility: 'visible',
-            'line-join': 'round',
-        },
-        paint: {
-            'line-color': '#dddddd',
-            'line-width': 3,
-        },
-    },
-    {
-        id: 'railway_transit_dashline',
-        type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
-        minzoom: 16,
-        filter: [
-            'all',
-            ['==', '$type', 'LineString'],
-            ['all', ['==', 'class', 'transit'], ['!in', 'brunnel', 'tunnel']],
-        ],
-        layout: {
-            visibility: 'visible',
-            'line-join': 'round',
-        },
-        paint: {
-            'line-color': '#fafafa',
-            'line-width': 2,
-            'line-dasharray': [3, 3],
-        },
-    },
-    {
-        id: 'railway_service',
-        type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
-        minzoom: 16,
-        filter: ['all', ['==', '$type', 'LineString'], ['all', ['==', 'class', 'rail'], ['has', 'service']]],
-        layout: {
-            visibility: 'visible',
-            'line-join': 'round',
-        },
-        paint: {
-            'line-color': '#dddddd',
-            'line-width': 3,
-        },
-    },
-    {
-        id: 'railway_service_dashline',
-        type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
-        minzoom: 16,
-        filter: ['all', ['==', '$type', 'LineString'], ['==', 'class', 'rail'], ['has', 'service']],
-        layout: {
-            visibility: 'visible',
-            'line-join': 'round',
-        },
-        paint: {
-            'line-color': '#fafafa',
-            'line-width': 2,
-            'line-dasharray': [3, 3],
-        },
-    },
-    {
         id: 'railway',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 13,
-        filter: ['all', ['==', '$type', 'LineString'], ['all', ['!has', 'service'], ['==', 'class', 'rail']]],
+        filter: [
+            'all',
+            ['==', '$type', 'LineString'],
+            ['all', ['!has', 'service'], ['!has', 'is_tunnel'], ['==', 'kind', 'rail']],
+        ],
         layout: {
             visibility: 'visible',
             'line-join': 'round',
@@ -438,10 +330,14 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'railway_dashline',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 13,
-        filter: ['all', ['==', '$type', 'LineString'], ['all', ['!has', 'service'], ['==', 'class', 'rail']]],
+        filter: [
+            'all',
+            ['==', '$type', 'LineString'],
+            ['all', ['!has', 'service'], ['!has', 'is_tunnel'], ['==', 'class', 'rail']],
+        ],
         layout: {
             visibility: 'visible',
             'line-join': 'round',
@@ -455,13 +351,13 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'highway_motorway_bridge_casing',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 6,
         filter: [
             'all',
             ['==', '$type', 'LineString'],
-            ['all', ['==', 'brunnel', 'bridge'], ['==', 'class', 'motorway']],
+            ['all', ['==', 'brunnel', 'bridge'], ['==', 'kind', 'motorway']],
         ],
         layout: {
             'line-cap': 'butt',
@@ -477,13 +373,13 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'highway_motorway_bridge_inner',
         type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'transportation',
+        source: 'basemap',
+        'source-layer': 'roads',
         minzoom: 6,
         filter: [
             'all',
             ['==', '$type', 'LineString'],
-            ['all', ['==', 'brunnel', 'bridge'], ['==', 'class', 'motorway']],
+            ['all', ['==', 'brunnel', 'bridge'], ['==', 'kind', 'motorway']],
         ],
         layout: {
             'line-cap': 'round',
@@ -498,9 +394,9 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'highway_name_motorway',
         type: 'symbol',
-        source: 'openmaptiles',
-        'source-layer': 'transportation_name',
-        filter: ['all', ['==', '$type', 'LineString'], ['==', 'class', 'motorway']],
+        source: 'basemap',
+        'source-layer': 'roads',
+        filter: ['all', ['==', '$type', 'LineString'], ['==', 'kind', 'motorway']],
         layout: {
             'text-size': 10,
             'symbol-spacing': 350,
@@ -520,51 +416,12 @@ const layers: LayerSpecificationWithZIndex[] = [
         },
     },
     {
-        id: 'boundary_state',
-        type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'boundary',
-        filter: ['==', 'admin_level', 4],
-        layout: {
-            'line-cap': 'round',
-            'line-join': 'round',
-            visibility: 'visible',
-        },
-        paint: {
-            'line-color': 'rgb(230, 204, 207)',
-            'line-width': ['interpolate', ['linear'], ['zoom'], 3, 1, 22, 15],
-            'line-blur': 0.4,
-            'line-dasharray': [2, 2],
-            'line-opacity': 1,
-        },
-    },
-    {
-        id: 'boundary_country',
-        type: 'line',
-        source: 'openmaptiles',
-        'source-layer': 'boundary',
-        filter: ['==', 'admin_level', 2],
-        layout: {
-            'line-cap': 'round',
-            'line-join': 'round',
-        },
-        paint: {
-            'line-color': 'rgb(230, 204, 207)',
-            'line-width': ['interpolate', ['exponential', 1.1], ['zoom'], 3, 1, 22, 20],
-            'line-blur': ['interpolate', ['linear'], ['zoom'], 3, 0.4, 22, 4],
-        },
-    },
-    {
         id: 'place_other',
         type: 'symbol',
-        source: 'openmaptiles',
-        'source-layer': 'place',
+        source: 'basemap',
+        'source-layer': 'places',
         maxzoom: 14,
-        filter: [
-            'all',
-            ['in', 'class', 'continent', 'hamlet', 'neighbourhood', 'isolated_dwelling'],
-            ['==', '$type', 'Point'],
-        ],
+        filter: ['==', 'kind', 'neighbourhood'],
         layout: {
             'text-size': 10,
             'text-transform': 'uppercase',
@@ -573,7 +430,7 @@ const layers: LayerSpecificationWithZIndex[] = [
             visibility: 'visible',
             'text-offset': [0.5, 0],
             'text-anchor': 'center',
-            'text-field': '{name:latin}\n{name:nonlatin}',
+            'text-field': '{name}',
         },
         paint: {
             'text-color': 'rgb(117, 129, 145)',
@@ -585,10 +442,10 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'place_suburb',
         type: 'symbol',
-        source: 'openmaptiles',
-        'source-layer': 'place',
+        source: 'basemap',
+        'source-layer': 'places',
         maxzoom: 15,
-        filter: ['all', ['==', '$type', 'Point'], ['==', 'class', 'suburb']],
+        filter: ['==', 'kind', 'macrohood'],
         layout: {
             'text-size': 10,
             'text-transform': 'uppercase',
@@ -597,48 +454,22 @@ const layers: LayerSpecificationWithZIndex[] = [
             visibility: 'visible',
             'text-offset': [0.5, 0],
             'text-anchor': 'center',
-            'text-field': '{name:latin}\n{name:nonlatin}',
+            'text-field': '{name}',
         },
         paint: {
             'text-color': 'rgb(117, 129, 145)',
             'text-halo-color': 'rgb(242,243,240)',
             'text-halo-width': 1,
             'text-halo-blur': 1,
-        },
-    },
-    {
-        id: 'place_village',
-        type: 'symbol',
-        source: 'openmaptiles',
-        'source-layer': 'place',
-        maxzoom: 14,
-        filter: ['all', ['==', '$type', 'Point'], ['==', 'class', 'village']],
-        layout: {
-            'text-size': 10,
-            'text-transform': 'uppercase',
-            'text-font': ['Open Sans Regular'],
-            'text-justify': 'left',
-            visibility: 'visible',
-            'text-offset': [0.5, 0.2],
-            'icon-size': 0.4,
-            'text-anchor': 'left',
-            'text-field': '{name:latin}\n{name:nonlatin}',
-        },
-        paint: {
-            'text-color': 'rgb(117, 129, 145)',
-            'text-halo-color': 'rgb(242,243,240)',
-            'text-halo-width': 1,
-            'text-halo-blur': 1,
-            'icon-opacity': 0.7,
         },
     },
     {
         id: 'place_town',
         type: 'symbol',
-        source: 'openmaptiles',
-        'source-layer': 'place',
+        source: 'basemap',
+        'source-layer': 'places',
         maxzoom: 15,
-        filter: ['all', ['==', '$type', 'Point'], ['==', 'class', 'town']],
+        filter: ['==', 'kind', 'locality'],
         layout: {
             'text-size': 10,
             'icon-image': ['step', ['zoom'], 'circle-11', 8, ''],
@@ -649,7 +480,7 @@ const layers: LayerSpecificationWithZIndex[] = [
             'text-offset': [0.5, 0.2],
             'icon-size': 0.4,
             'text-anchor': ['step', ['zoom'], 'left', 8, 'center'],
-            'text-field': '{name:latin}\n{name:nonlatin}',
+            'text-field': '{name}',
         },
         paint: {
             'text-color': 'rgb(117, 129, 145)',
@@ -662,8 +493,8 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'place_city',
         type: 'symbol',
-        source: 'openmaptiles',
-        'source-layer': 'place',
+        source: 'basemap',
+        'source-layer': 'places',
         maxzoom: 14,
         filter: [
             'all',
@@ -680,7 +511,7 @@ const layers: LayerSpecificationWithZIndex[] = [
             'text-offset': [0.5, 0.2],
             'icon-size': 0.4,
             'text-anchor': ['step', ['zoom'], 'left', 8, 'center'],
-            'text-field': '{name:latin}\n{name:nonlatin}',
+            'text-field': '{name}',
         },
         paint: {
             'text-color': 'rgb(117, 129, 145)',
@@ -693,8 +524,8 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'place_capital',
         type: 'symbol',
-        source: 'openmaptiles',
-        'source-layer': 'place',
+        source: 'basemap',
+        'source-layer': 'places',
         maxzoom: 12,
         filter: ['all', ['==', '$type', 'Point'], ['all', ['==', 'capital', 2], ['==', 'class', 'city']]],
         layout: {
@@ -707,7 +538,7 @@ const layers: LayerSpecificationWithZIndex[] = [
             'text-offset': [0.5, 0.2],
             'icon-size': 1,
             'text-anchor': ['step', ['zoom'], 'left', 8, 'center'],
-            'text-field': '{name:latin}\n{name:nonlatin}',
+            'text-field': '{name}',
         },
         paint: {
             'text-color': 'rgb(117, 129, 145)',
@@ -720,8 +551,8 @@ const layers: LayerSpecificationWithZIndex[] = [
     {
         id: 'place_city_large',
         type: 'symbol',
-        source: 'openmaptiles',
-        'source-layer': 'place',
+        source: 'basemap',
+        'source-layer': 'places',
         maxzoom: 12,
         filter: [
             'all',
@@ -737,7 +568,7 @@ const layers: LayerSpecificationWithZIndex[] = [
             visibility: 'visible',
             'text-offset': [0.5, 0.2],
             'icon-size': 0.4,
-            'text-field': '{name:latin}\n{name:nonlatin}',
+            'text-field': '{name}',
         },
         paint: {
             'text-color': 'rgb(117, 129, 145)',
@@ -745,27 +576,6 @@ const layers: LayerSpecificationWithZIndex[] = [
             'text-halo-width': 1,
             'text-halo-blur': 1,
             'icon-opacity': 0.7,
-        },
-    },
-    {
-        id: 'place_state',
-        type: 'symbol',
-        source: 'openmaptiles',
-        'source-layer': 'place',
-        maxzoom: 12,
-        filter: ['all', ['==', '$type', 'Point'], ['==', 'class', 'state']],
-        layout: {
-            visibility: 'visible',
-            'text-field': '{name:latin}\n{name:nonlatin}',
-            'text-font': ['Open Sans Regular'],
-            'text-transform': 'uppercase',
-            'text-size': 10,
-        },
-        paint: {
-            'text-color': 'rgb(113, 129, 144)',
-            'text-halo-color': 'rgb(242,243,240)',
-            'text-halo-width': 1,
-            'text-halo-blur': 1,
         },
     },
 ]
