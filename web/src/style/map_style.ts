@@ -95,20 +95,10 @@ const layers: LayerSpecificationWithZIndex[] = [
     },
   },
   {
-    id: 'background_natural_woodland_polygon',
-    type: 'fill',
-    source: 'site_plan',
-    'source-layer': 'natural_woodland_polygon',
-    layout: {},
-    paint: {
-      'fill-color': '#528329',
-    },
-  },
-  {
     id: 'background_natural_hedges_polygon',
     type: 'fill',
     source: 'site_plan',
-    'source-layer': 'natural_hedges_polygon',
+    'source-layer': 'hedges',
     layout: {},
     paint: {
       'fill-color': '#528329',
