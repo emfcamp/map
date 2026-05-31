@@ -53,7 +53,6 @@ const style: StyleSpecification = {
       data: { type: 'FeatureCollection', features: [] },
     },
   },
-  sprite: 'https://openmaptiles.github.io/positron-gl-style/sprite',
   glyphs: 'https://map.emfcamp.org/tiles/font/{fontstack}/{range}',
   layers: sortBy(layers, [(item) => item.zindex || 0]).map((item) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

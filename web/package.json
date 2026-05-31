@@ -10,7 +10,7 @@
   "scripts": {
     "start": "npm run assets && vite --host 0.0.0.0 --port=8080",
     "build": "npm run assets && vite build",
-    "serve": "node --experimental-specifier-resolution=node --loader ts-node/esm server.ts",
+    "serve": "node server.ts",
     "assets": "pwa-assets-generator",
     "test": "eslint"
   },
