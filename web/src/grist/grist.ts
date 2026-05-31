@@ -1,8 +1,13 @@
+/*
+  Main code for Grist map widget (grist-widget.html)
+*/
+
 import { Feature, FeatureCollection } from 'geojson'
-import './index.css'
-import { EventMap } from './map.ts'
+import '../index.css'
+import { EventMap } from '../map.ts'
 import { GeoJSONSource } from 'maplibre-gl/src/index.ts'
-import { center as defaultCenter, zoom } from './style/map_style.ts'
+import { center as defaultCenter, zoom } from '../style/map_style.ts'
+import './grist-plugin-api.d.ts'
 
 const SOURCE_NAME = 'grist_markers'
 
@@ -17,9 +22,9 @@ function initGrist(map: maplibregl.Map) {
   })
 
   grist.onRecords(function (records, mappings) {
-    const sourceRecords = grist.mapColumnNames(records, mappings)
-    let markers: Feature[] = []
-    for (let record of sourceRecords) {
+    const sourceRecords = grist.mapColumnNames(records, { mappings })
+    const markers: Feature[] = []
+    for (const record of sourceRecords) {
       markers.push({
         type: 'Feature',
         id: record.id,
@@ -39,7 +44,7 @@ function initGrist(map: maplibregl.Map) {
     }
 
     if (map.getSource(SOURCE_NAME)) {
-      const source: GeoJSONSource = map.getSource(SOURCE_NAME)!
+      const source: GeoJSONSource = map.getSource(SOURCE_NAME)! as GeoJSONSource
       source.setData(sourceData)
     } else {
       map.addSource(SOURCE_NAME, { type: 'geojson', data: sourceData })
@@ -50,7 +55,7 @@ function initGrist(map: maplibregl.Map) {
     map.removeFeatureState({
       source: SOURCE_NAME,
     })
-    map.setFeatureState({ source: SOURCE_NAME, id: record.id }, { 'grist-selected': true })
+    if (record) map.setFeatureState({ source: SOURCE_NAME, id: record.id }, { 'grist-selected': true })
   })
 
   async function savePosition() {

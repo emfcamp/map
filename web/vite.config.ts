@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import { dirname, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import { VitePWA } from 'vite-plugin-pwa'
 import { renderSVG } from 'vite-plugin-render-svg'
 
@@ -7,7 +7,7 @@ export default defineConfig({
   base: './',
   build: {
     // Suppress large chunk warning. There's not much we can do about this.
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 1500,
     sourcemap: true,
     rollupOptions: {
       input: {
