@@ -60,6 +60,7 @@ export class EventMap {
     Paths: 'paths_',
     'Buried Services': 'services_',
     Lighting: 'lighting_',
+    Villages: 'villages_',
   }
   map?: maplibregl.Map
   layer_switcher?: LayerSwitcher
@@ -68,7 +69,7 @@ export class EventMap {
   transit_info?: TransitInfo
 
   init(options: EventMapOptions = { embed: false }) {
-    const layers_enabled = ['Background', 'Structures', 'Paths']
+    const layers_enabled = ['Background', 'Structures', 'Paths', 'Villages']
     this.layer_switcher = new LayerSwitcher(this.layers, layers_enabled)
 
     this.url_hash = new URLHash(this.layer_switcher)
