@@ -25,12 +25,21 @@ function initGrist(map: maplibregl.Map) {
     const sourceRecords = grist.mapColumnNames(records, { mappings })
     const markers: Feature[] = []
     for (const record of sourceRecords) {
+      console.log(record)
+
+      const lat = parseFloat(record.latitude),
+        lon = parseFloat(record.longitude)
+
+      if (!lat || !lon) {
+        continue
+      }
+
       markers.push({
         type: 'Feature',
         id: record.id,
         geometry: {
           type: 'Point',
-          coordinates: [record['longitude'], record['latitude']],
+          coordinates: [lon, lat],
         },
         properties: {
           name: record['name'] || '',
