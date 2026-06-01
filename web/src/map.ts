@@ -22,7 +22,9 @@ async function loadIcons(map: maplibregl.Map) {
     'camping',
     'no-access',
     'water',
+    'water-point',
     'tree',
+    'toilet',
     'datenklo',
     'datenklo_active',
     'datenklo_down',
@@ -133,22 +135,23 @@ export class EventMap {
     this.map.addControl(this.marker, 'top-right')
     this.map.addControl(new GridPosition('gridsquares'), 'bottom-right')
 
-    this.initContextMenu()
+    this.initContextMenu(!options.embed)
   }
 
-  initContextMenu() {
+  initContextMenu(markers: boolean) {
     const contextMenu = new ContextMenu(this.map!)
-    contextMenu.addItem('Set marker', (_e, coords) => {
-      this.marker!.setLocation(coords)
-    })
-    contextMenu.addItem(
-      'Clear marker',
-      () => {
-        this.marker!.setLocation(null)
-      },
-      () => this.marker!.location != null
-    )
-
+    if (markers) {
+      contextMenu.addItem('Set marker', (_e, coords) => {
+        this.marker!.setLocation(coords)
+      })
+      contextMenu.addItem(
+        'Clear marker',
+        () => {
+          this.marker!.setLocation(null)
+        },
+        () => this.marker!.location != null
+      )
+    }
     contextMenu.addItem('Copy coordinates', (e, coords) => {
       const [lng, lat] = roundPosition([coords.lng, coords.lat], this.map!.getZoom())
       if (e.shiftKey) {
