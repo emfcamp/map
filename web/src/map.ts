@@ -2,8 +2,7 @@ import './index.css'
 import maplibregl from 'maplibre-gl'
 import map_style from './style/map_style.ts'
 import Marker from './marker'
-import LayerSwitcher from '@russss/maplibregl-layer-switcher'
-import URLHash from '@russss/maplibregl-layer-switcher/urlhash'
+import { Layer, LayerGroup, LayerSwitcher, URLHash } from '@russss/maplibregl-layer-switcher'
 import DistanceMeasure from './distancemeasure'
 import ContextMenu from './contextmenu'
 import VillagesEditor from './villages'
@@ -55,18 +54,22 @@ interface EventMapOptions {
 }
 
 export class EventMap {
-  layers: Record<string, string> = {
-    Grid: 'grid_',
-    Background: 'background_',
-    Slope: 'slope',
-    Hillshade: 'hillshade',
-    'Aerial Imagery': 'ortho',
-    Structures: 'structures_',
-    Paths: 'paths_',
-    'Buried Services': 'services_',
-    Lighting: 'lighting_',
-    Villages: 'villages_',
-  }
+  layers: (Layer | LayerGroup)[] = [
+    new Layer('g', 'Grid', 'grid_'),
+    new LayerGroup('Background', [
+      new Layer('b', 'Map', 'background_', 'background', true),
+      new Layer('s', 'Slope', 'slope', 'background'),
+      new Layer('h', 'Hillshade', 'hillshade', 'background'),
+      new Layer('o', 'Aerial imagery', 'ortho', 'background'),
+    ]),
+    new LayerGroup('EMF', [
+      new Layer('t', 'Structures', 'structures_', true),
+      new Layer('p', 'Paths', 'paths_', true),
+      new Layer('v', 'Villages', 'villages_', true),
+    ]),
+    new Layer('bs', 'Buried services', 'services_'),
+    new Layer('l', 'Lighting', 'lighting_'),
+  ]
   map?: maplibregl.Map
   layer_switcher?: LayerSwitcher
   url_hash?: URLHash
@@ -76,10 +79,9 @@ export class EventMap {
   init(
     options: EventMapOptions = {
       embed: false,
-      defaultLayers: ['Background', 'Structures', 'Paths', 'Villages'],
     }
   ) {
-    this.layer_switcher = new LayerSwitcher(this.layers, options.defaultLayers)
+    this.layer_switcher = new LayerSwitcher(this.layers)
 
     this.url_hash = new URLHash(this.layer_switcher)
     this.layer_switcher.urlhash = this.url_hash
