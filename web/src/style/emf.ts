@@ -577,6 +577,25 @@ export const layers: LayerSpecificationWithZIndex[] = [
         },
         },*/
   {
+    /* Invisible polygons required for grid info box */
+    id: 'gridsquares',
+    type: 'fill',
+    source: 'site_plan',
+    'source-layer': 'grid',
+    paint: {
+      'fill-opacity': 0,
+    },
+  },
+  {
+    id: 'grid_lines',
+    type: 'line',
+    source: 'site_plan',
+    'source-layer': 'grid',
+    paint: {
+      'line-color': '#666',
+    },
+  },
+  {
     id: 'labels_streets',
     type: 'symbol',
     source: 'site_plan',

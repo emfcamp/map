@@ -12,6 +12,7 @@ import InstallControl from './installcontrol'
 import TransitInfo from './transit'
 import ExportControl from './export/export'
 import { manifest } from 'virtual:render-svg'
+import { GridPosition } from './grid.ts'
 
 async function loadIcons(map: maplibregl.Map) {
   const ratio = Math.min(Math.round(window.devicePixelRatio), 2)
@@ -48,10 +49,12 @@ async function loadIcons(map: maplibregl.Map) {
 
 interface EventMapOptions {
   embed: boolean
+  defaultLayers?: string[]
 }
 
 export class EventMap {
   layers: Record<string, string> = {
+    Grid: 'grid_',
     Background: 'background_',
     Slope: 'slope',
     Hillshade: 'hillshade',
@@ -68,9 +71,13 @@ export class EventMap {
   marker?: Marker
   transit_info?: TransitInfo
 
-  init(options: EventMapOptions = { embed: false }) {
-    const layers_enabled = ['Background', 'Structures', 'Paths', 'Villages']
-    this.layer_switcher = new LayerSwitcher(this.layers, layers_enabled)
+  init(
+    options: EventMapOptions = {
+      embed: false,
+      defaultLayers: ['Background', 'Structures', 'Paths', 'Villages'],
+    }
+  ) {
+    this.layer_switcher = new LayerSwitcher(this.layers, options.defaultLayers)
 
     this.url_hash = new URLHash(this.layer_switcher)
     this.layer_switcher.urlhash = this.url_hash
@@ -124,10 +131,9 @@ export class EventMap {
     this.url_hash.enable(this.map)
 
     this.map.addControl(this.marker, 'top-right')
+    this.map.addControl(new GridPosition('gridsquares'), 'bottom-right')
 
-    if (!options.embed) {
-      this.initContextMenu()
-    }
+    this.initContextMenu()
   }
 
   initContextMenu() {
