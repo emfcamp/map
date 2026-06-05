@@ -32,6 +32,8 @@ async function loadIcons(map: maplibregl.Map) {
     'power-distro',
     'power-generator',
     'network-switch',
+    'network-switch-active',
+    'network-switch-down',
   ]
 
   Promise.all(
