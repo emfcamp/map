@@ -56,7 +56,7 @@
 }
 
 .villages-create #village-status {
-  font-weight:bold;
+  font-weight: bold;
   padding: 3px;
   background-color: #eee;
   border-radius: 3px;
@@ -70,7 +70,7 @@
   content: ':';
 }
 
-.villages-create button[type="submit"] {
+.villages-create button[type='submit'] {
   font-size: 1.1em;
   padding: 3px;
   float: right;
@@ -90,3 +90,6 @@
   font-size: 1.5em;
 }
 
+.villages-create #village-selector {
+  max-width: 20em;
+}
