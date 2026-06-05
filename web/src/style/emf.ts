@@ -393,34 +393,6 @@ export const layers: LayerSpecificationWithZIndex[] = [
     },
   },
   {
-    id: 'services_comms_manholes',
-    type: 'circle',
-    source: 'site_plan',
-    'source-layer': 'telecom_manholes',
-    minzoom: 15,
-    paint: {
-      'circle-color': 'rgba(187, 0, 218, 1)',
-      'circle-stroke-width': 1,
-    },
-  },
-  {
-    id: 'services_comms_manholes_label',
-    type: 'symbol',
-    source: 'site_plan',
-    'source-layer': 'telecom_manholes',
-    minzoom: 15,
-    layout: {
-      'text-field': '{ref}',
-      'text-font': ['Open Sans Regular'],
-      'text-size': 14,
-      'text-offset': [-1, 0],
-    },
-    paint: {
-      'text-halo-color': 'rgba(255, 255, 255, 1)',
-      'text-halo-width': 2,
-    },
-  },
-  {
     id: 'services_water_lines',
     type: 'line',
     source: 'site_plan',
@@ -542,6 +514,18 @@ export const layers: LayerSpecificationWithZIndex[] = [
     },
   },
   {
+    id: 'network_cable_case',
+    type: 'line',
+    source: 'site_plan',
+    'source-layer': 'network_cable',
+    minzoom: 17,
+    layout: {},
+    paint: {
+      'line-color': '#999',
+      'line-width': ['interpolate', ['linear'], ['get', 'cores'], 1, 4, 24, 10],
+    },
+  },
+  {
     id: 'network_cable',
     type: 'line',
     source: 'site_plan',
@@ -549,8 +533,8 @@ export const layers: LayerSpecificationWithZIndex[] = [
     minzoom: 17,
     layout: {},
     paint: {
-      'line-color': ['match', ['get', 'type'], 'cat5e', '#01b6a3', 'smf', '#efee5a', '#333'],
-      'line-width': ['interpolate', ['linear'], ['get', 'cores'], 1, 2, 24, 5],
+      'line-color': ['match', ['get', 'type'], 'cat5e', '#01b6a3', 'smf', '#f4f102', '#333'],
+      'line-width': ['interpolate', ['linear'], ['get', 'cores'], 1, 2, 24, 4],
     },
   },
   {
@@ -684,6 +668,34 @@ export const layers: LayerSpecificationWithZIndex[] = [
       'text-halo-color': 'rgba(241, 241, 241, 0.8)',
       'text-halo-width': 3,
       'text-opacity': ['interpolate', ['linear'], ['zoom'], 17.9, 0, 18, 1],
+    },
+  },
+  {
+    id: 'services_comms_manholes',
+    type: 'circle',
+    source: 'site_plan',
+    'source-layer': 'telecom_manholes',
+    minzoom: 15,
+    paint: {
+      'circle-color': 'rgba(187, 0, 218, 1)',
+      'circle-stroke-width': 1,
+    },
+  },
+  {
+    id: 'services_comms_manholes_label',
+    type: 'symbol',
+    source: 'site_plan',
+    'source-layer': 'telecom_manholes',
+    minzoom: 15,
+    layout: {
+      'text-field': '{ref}',
+      'text-font': ['Open Sans Regular'],
+      'text-size': 14,
+      'text-offset': [-1, 0],
+    },
+    paint: {
+      'text-halo-color': 'rgba(255, 255, 255, 1)',
+      'text-halo-width': 2,
     },
   },
   {
