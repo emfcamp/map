@@ -29,6 +29,9 @@ async function loadIcons(map: maplibregl.Map) {
     'datenklo_down',
     'marker',
     'marker-light',
+    'power-distro',
+    'power-generator',
+    'network-switch',
   ]
 
   Promise.all(
@@ -67,8 +70,12 @@ export class EventMap {
       new Layer('p', 'Paths', 'paths_', true),
       new Layer('v', 'Villages', 'villages_', true),
     ]),
+    new LayerGroup('Infrastructure', [
+      new Layer('w', 'Power', 'power_'),
+      new Layer('n', 'Network', 'network_'),
+      new Layer('l', 'Lighting', 'lighting_'),
+    ]),
     new Layer('bs', 'Buried services', 'services_'),
-    new Layer('l', 'Lighting', 'lighting_'),
   ]
   map?: maplibregl.Map
   layer_switcher?: LayerSwitcher
