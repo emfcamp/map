@@ -55,7 +55,6 @@ async function loadIcons(map: maplibregl.Map) {
 
 interface EventMapOptions {
   embed: boolean
-  defaultLayers?: string[]
 }
 
 export class EventMap {
@@ -111,7 +110,7 @@ export class EventMap {
     this.map.touchZoomRotate.disableRotation()
 
     if (!options.embed) {
-      this.map.addControl(new maplibregl.NavigationControl(), 'top-right')
+      this.map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
 
       this.map.addControl(
         new maplibregl.GeolocateControl({
@@ -134,7 +133,7 @@ export class EventMap {
 
       this.map.addControl(new VillagesEditor('villages', 'villages_symbol'), 'top-right')
 
-      // Display edit control only on browsers which are likely to be desktop browsers
+      // Display export control only on browsers which are likely to be desktop browsers
       if (window.matchMedia('(min-width: 600px)').matches) {
         this.map.addControl(new ExportControl(loadIcons), 'top-right')
       }
