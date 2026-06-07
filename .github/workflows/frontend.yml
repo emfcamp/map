@@ -14,8 +14,10 @@ jobs:
     uses: ./.github/workflows/test_frontend.yml
     permissions:
       contents: read
+
   build:
     runs-on: ubuntu-24.04-arm
+    needs: test
     env:
       IMAGE: ghcr.io/emfcamp/map-web
     steps:
