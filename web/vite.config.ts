@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import { resolve } from 'node:path'
 import { VitePWA } from 'vite-plugin-pwa'
 import { renderSVG } from 'vite-plugin-render-svg'
-import { csp } from './csp'
 
 export default defineConfig({
   base: './',

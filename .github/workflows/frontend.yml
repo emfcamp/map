@@ -9,6 +9,11 @@ on:
       - .github/workflows/frontend.yml
 
 jobs:
+  test:
+    name: Run tests
+    uses: ./.github/workflows/test_frontend.yml
+    permissions:
+      contents: read
   build:
     runs-on: ubuntu-24.04-arm
     env:

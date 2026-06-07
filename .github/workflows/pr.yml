@@ -1,0 +1,17 @@
+name: Test
+
+on:
+  pull_request:
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test frontend
+    uses: ./.github/workflows/test_frontend.yml
