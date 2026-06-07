@@ -787,7 +787,7 @@ export const layers: LayerSpecificationWithZIndex[] = [
         ],
         ['get', 'name'],
       ],
-      'text-font': ['Raleway'],
+      'text-font': ['Raleway SemiBold'],
       'text-justify': 'center',
       'text-size': ['interpolate', ['linear'], ['zoom'], 16, 10, 20, 25],
       'text-padding': 2,
@@ -853,7 +853,7 @@ export const layers: LayerSpecificationWithZIndex[] = [
     minzoom: 16,
     layout: {
       'text-field': 'Parking:\n{name}',
-      'text-font': ['Raleway'],
+      'text-font': ['Raleway SemiBold'],
       'text-justify': 'center',
       'text-size': ['interpolate', ['linear'], ['zoom'], 16, 10, 20, 25],
       'text-padding': 2,
