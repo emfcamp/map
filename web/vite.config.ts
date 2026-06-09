@@ -37,8 +37,8 @@ export default defineConfig({
       manifest: {
         id: '/',
         short_name: 'EMF Map',
-        name: 'Electromagnetic Field 2024 Map',
-        description: 'Map for Electromagnetic Field 2024',
+        name: 'Electromagnetic Field 2026 Map',
+        description: 'Map for Electromagnetic Field 2026',
         icons: [
           {
             src: 'pwa-64x64.png',
