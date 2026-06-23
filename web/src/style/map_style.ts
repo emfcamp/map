@@ -25,7 +25,9 @@ const style: StyleSpecification = {
     },
     villages: {
       type: 'geojson',
-      data: 'https://www.emfcamp.org/api/villages.geojson',
+      data: import.meta.env.DEV
+        ? 'http://localhost:2342/api/villages.geojson'
+        : 'https://www.emfcamp.org/api/villages.geojson',
     },
     slope: {
       type: 'raster',
