@@ -1,6 +1,15 @@
 import { el, setChildren, mount, RedomComponent } from 'redom'
 import { Village } from './index.ts'
 
+function villageLngLat(v: Village): [number | null, number | null] {
+  const location = v?.location as GeoJSON.Point | null | undefined
+  if (location?.type === 'Point') {
+    const [lng, lat] = location.coordinates
+    return [lng, lat]
+  }
+  return [null, null]
+}
+
 class VillageSelector implements RedomComponent {
   el: HTMLElement
   onSelected: any
@@ -8,7 +17,10 @@ class VillageSelector implements RedomComponent {
   villages: Village[]
 
   constructor(villages: Village[], selected?: number) {
-    this.villages = villages
+    this.villages = [...villages].sort((a, b) =>
+      (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
+    )
+    villages = this.villages
 
     if (!selected) {
       selected = villages[0].id
@@ -81,14 +93,16 @@ export class PlaceVillageDialog implements RedomComponent {
     this.village_selector = new VillageSelector(villages)
     const selected_village = this.village_selector.getSelected()!
 
-    this.location_selector = new LocationSelector(this.map, selected_village.lng, selected_village.lat)
+    const [vlng, vlat] = villageLngLat(selected_village)
+    this.location_selector = new LocationSelector(this.map, vlng as any, vlat as any)
 
     this.location_selector.onSelect = () => {
       submit_button.removeAttribute('disabled')
     }
 
     this.village_selector.onSelected = (village: Village) => {
-      this.location_selector!.setLocation(village.lng, village.lat)
+      const [lng, lat] = villageLngLat(village)
+      this.location_selector!.setLocation(lng, lat)
     }
 
     const form = el(
@@ -117,7 +131,11 @@ export class PlaceVillageDialog implements RedomComponent {
 
     if (!village) return null
 
-    village.location = [this.location_selector!.lng, this.location_selector!.lat]
+    const lng = this.location_selector!.lng
+    const lat = this.location_selector!.lat
+    if (lng != null && lat != null) {
+      village.location = [lng, lat]
+    }
 
     return village
   }
