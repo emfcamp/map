@@ -67,6 +67,7 @@ export class EventMap {
       new Layer('o', 'Aerial imagery', 'ortho', 'background'),
     ]),
     new LayerGroup('EMF', [
+      new Layer('a', 'Labels', 'labels_', true),
       new Layer('t', 'Structures', 'structures_', true),
       new Layer('p', 'Paths', 'paths_', true),
       new Layer('v', 'Villages', 'villages_', true),

@@ -42,7 +42,7 @@ const style: StyleSpecification = {
     ortho: {
       type: 'raster',
       tileSize: 256,
-      tiles: ['https://map.emfcamp.org/tiles/ortho/{z}/{x}/{y}'],
+      tiles: ['https://map.emfcamp.org/tiles/eastnor-ortho-202606/{z}/{x}/{y}'],
     },
     vehicles: {
       type: 'geojson',
