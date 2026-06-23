@@ -29,6 +29,10 @@ const style: StyleSpecification = {
         ? 'http://localhost:2342/api/villages.geojson'
         : 'https://www.emfcamp.org/api/villages.geojson',
     },
+    phones: {
+      type: 'geojson',
+      data: 'https://phones.emf.camp/phones.geojson',
+    },
     slope: {
       type: 'raster',
       tiles: ['https://map.emfcamp.org/tiles/slope/{z}/{x}/{y}'],
