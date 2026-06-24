@@ -12,6 +12,7 @@ import TransitInfo from './transit'
 import ExportControl from './export/export'
 import { manifest } from 'virtual:render-svg'
 import { GridPosition } from './grid.ts'
+import { setupPhones } from './phones'
 
 async function loadIcons(map: maplibregl.Map) {
   const ratio = Math.min(Math.round(window.devicePixelRatio), 2)
@@ -34,6 +35,7 @@ async function loadIcons(map: maplibregl.Map) {
     'network-switch',
     'network-switch-active',
     'network-switch-down',
+    'phone',
   ]
 
   Promise.all(
@@ -71,6 +73,7 @@ export class EventMap {
       new Layer('t', 'Structures', 'structures_', true),
       new Layer('p', 'Paths', 'paths_', true),
       new Layer('v', 'Villages', 'villages_', true),
+      new Layer('r', 'Phones', 'phones_', true),
     ]),
     new LayerGroup('Infrastructure', [
       new Layer('w', 'Power', 'power_'),
@@ -107,6 +110,7 @@ export class EventMap {
       })
     )
     loadIcons(this.map)
+    setupPhones(this.map)
 
     this.map.touchZoomRotate.disableRotation()
 

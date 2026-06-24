@@ -764,6 +764,19 @@ export const layers: LayerSpecificationWithZIndex[] = [
     },
   },
   {
+    id: 'phones_symbol',
+    type: 'symbol',
+    source: 'phones',
+    'source-layer': '',
+    minzoom: 17,
+    layout: {
+      'icon-image': 'phone',
+      'icon-size': ['interpolate', ['linear'], ['zoom'], 18, 0.25, 22, 0.6],
+      'icon-allow-overlap': true,
+      'icon-anchor': 'center',
+    },
+  },
+  {
     id: 'labels_camping',
     type: 'symbol',
     source: 'site_plan',

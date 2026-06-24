@@ -1,0 +1,17 @@
+.phones-popup {
+  min-width: 150px;
+  margin-top: -10px;
+}
+
+.phones-popup a:link,
+.phones-popup a:visited {
+  color: #333;
+}
+
+.phones-popup h3 {
+  font-size: 1.5em;
+}
+
+.phones-popup p {
+  margin: 0.3em 0 0;
+}
