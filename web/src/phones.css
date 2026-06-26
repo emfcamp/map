@@ -15,3 +15,14 @@
 .phones-popup p {
   margin: 0.3em 0 0;
 }
+
+.phones-popup a:has(img) {
+  display: block;
+}
+
+.phones-popup img {
+  display: block;
+  width: 75%;
+  margin: 0 auto;
+  margin-top: 0.5em;
+}
