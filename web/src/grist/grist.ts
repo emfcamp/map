@@ -7,7 +7,6 @@ import '../index.css'
 import { EventMap } from '../map.ts'
 import { GeoJSONSource } from 'maplibre-gl/src/index.ts'
 import { center as defaultCenter, zoom } from '../style/map_style.ts'
-import './grist-plugin-api.d.ts'
 
 const SOURCE_NAME = 'grist_markers'
 
