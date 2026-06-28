@@ -50,7 +50,6 @@ class ExportControl implements maplibregl.IControl {
       zoom: this.exportZoom,
       // NB: bearing and pitch not supported
       interactive: false,
-      preserveDrawingBuffer: true,
       fadeDuration: 0,
       attributionControl: false,
     })

@@ -9,5 +9,5 @@ const em = new EventMap()
 if (document.readyState != 'loading') {
   em.init()
 } else {
-  document.addEventListener('DOMContentLoaded', em.init)
+  document.addEventListener('DOMContentLoaded', () => em.init())
 }

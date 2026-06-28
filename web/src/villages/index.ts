@@ -145,13 +145,9 @@ class VillagesLayer {
     mount(document.body, editor)
   }
 
-  refreshLayer() {
-    // Reload the villages GeoJSON layer from the server by setting it to an empty object and back.
-    const source = this._map!.getSource(this._source) as maplibregl.GeoJSONSource
-    if (!source) return
-    const d = source._data as string
-    source.setData({ type: 'FeatureCollection', features: [] })
-    source.setData(d)
+  async refreshLayer() {
+    // Refreshing the layer is annoying and this doesn't happen often so just reload the whole page.
+    window.location.reload()
   }
 
   fetch(endpoint: string) {

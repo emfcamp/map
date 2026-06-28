@@ -1,6 +1,8 @@
 import { el } from 'redom'
 import './distancemeasure.css'
 import length from '@turf/length'
+import maplibregl, { GeoJSONSource, PointLike } from 'maplibre-gl'
+import { Point } from 'geojson'
 
 class DistanceMeasure implements maplibregl.IControl {
   _container: HTMLElement
@@ -55,7 +57,7 @@ class DistanceMeasure implements maplibregl.IControl {
   }
 
   onRemove() {
-    this._container.parentNode.removeChild(this._container)
+    this._container!.parentNode!.removeChild(this._container)
     this._map = undefined
   }
 
@@ -114,13 +116,13 @@ class DistanceMeasure implements maplibregl.IControl {
     this._map.removeLayer('measure-points')
     this._map.removeLayer('measure-lines')
     this._map.removeSource('geojson')
-    this._distanceContainer.innerHTML = ''
+    this._distanceContainer!.innerHTML = ''
     this._geojson.features = []
   }
 
   _measure(e: maplibregl.MapMouseEvent) {
     if (!this._measuring || !this._map) return
-    const bbox = [
+    const bbox: [PointLike, PointLike] = [
       [e.point.x - this._touchAllowance, e.point.y - this._touchAllowance],
       [e.point.x + this._touchAllowance, e.point.y + this._touchAllowance],
     ]
@@ -131,16 +133,16 @@ class DistanceMeasure implements maplibregl.IControl {
     if (this._geojson.features.length > 1) this._geojson.features.pop()
 
     // Clear the Distance container to populate it with a new value
-    this._distanceContainer.innerHTML = ''
+    this._distanceContainer!.innerHTML = ''
 
     // If a feature was clicked, remove it from the map
     if (features.length) {
       const id = features[0].properties.id
       this._geojson.features = this._geojson.features.filter(function (point) {
-        return point.properties.id !== id
+        return point.properties!.id !== id
       })
     } else {
-      const point = {
+      const point: GeoJSON.Feature<Point> = {
         type: 'Feature',
         geometry: {
           type: 'Point',
@@ -156,7 +158,7 @@ class DistanceMeasure implements maplibregl.IControl {
 
     if (this._geojson.features.length > 1) {
       this._linestring.geometry.coordinates = this._geojson.features.map(function (point) {
-        return point.geometry.coordinates
+        return (point as GeoJSON.Feature<Point>).geometry.coordinates
       })
 
       this._geojson.features.push(this._linestring)
@@ -164,10 +166,10 @@ class DistanceMeasure implements maplibregl.IControl {
       // Populate the distanceContainer with total distance
       const value = document.createElement('pre')
       value.textContent = 'Total distance: ' + (length(this._linestring) * 1000).toLocaleString() + 'm'
-      this._distanceContainer.appendChild(value)
+      this._distanceContainer!.appendChild(value)
     }
 
-    this._map.getSource('geojson').setData(this._geojson)
+    ;(this._map.getSource('geojson') as GeoJSONSource).setData(this._geojson)
   }
 }
 

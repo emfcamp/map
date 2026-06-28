@@ -19,9 +19,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "rootDir": "./src",
   },
   "ts-node": {
     "esm": true,
   },
-  "include": ["src", "node_modules"],
+  "include": ["src/*"],
 }

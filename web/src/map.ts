@@ -8,7 +8,6 @@ import ContextMenu from './contextmenu'
 import VillagesEditor from './villages'
 import { roundPosition } from './util'
 import InstallControl from './installcontrol'
-import TransitInfo from './transit'
 import ExportControl from './export/export'
 import { manifest } from 'virtual:render-svg'
 import { GridPosition } from './grid.ts'
@@ -86,7 +85,6 @@ export class EventMap {
   layer_switcher?: LayerSwitcher
   url_hash?: URLHash
   marker?: Marker
-  transit_info?: TransitInfo
 
   init(
     options: EventMapOptions = {

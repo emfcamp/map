@@ -1,5 +1,5 @@
 import { el } from 'redom'
-import URLHash from '@russss/maplibregl-layer-switcher/urlhash'
+import { URLHash } from '@russss/maplibregl-layer-switcher'
 import maplibregl from 'maplibre-gl'
 import { roundPosition } from './util'
 
@@ -13,7 +13,11 @@ class Marker implements maplibregl.IControl {
     this.location = null
     this.marker = null
     this.urlHash = urlHash
-    this.urlHash.registerHandler('m', (string: string) => this.setURLString(string))
+    this.urlHash.registerHandler('m', (string: string | null) => {
+      if (string) {
+        this.setURLString(string)
+      }
+    })
   }
 
   getURLString() {

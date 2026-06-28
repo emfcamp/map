@@ -3,7 +3,7 @@
 //   ../../../../grist-widget/inspect/grain-rpc
 //   ../../../../grist-widget/inspect/ts-interface-checker
 
-declare module grist {
+declare namespace grist {
   import {
     ColumnsToMap,
     CustomSectionAPI,

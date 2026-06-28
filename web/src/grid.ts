@@ -4,9 +4,9 @@ import { el } from 'redom'
 export class GridPosition implements maplibregl.IControl {
   _container: HTMLElement
   _map?: maplibregl.Map
-  _layer_name: str
+  _layer_name: string
 
-  constructor(layer_name: str) {
+  constructor(layer_name: string) {
     this._layer_name = layer_name
     this._container = el('div', { class: 'maplibregl-ctrl maplibregl-ctrl-group grid-position hidden' })
   }
@@ -37,7 +37,7 @@ export class GridPosition implements maplibregl.IControl {
   }
 
   onRemove() {
-    this._container.parentNode.removeChild(this._container)
+    this._container.parentNode!.removeChild(this._container)
     this._map = undefined
   }
 }
