@@ -1,4 +1,3 @@
-import sortBy from 'lodash.sortby'
 import { StyleSpecification } from 'maplibre-gl'
 import { layers } from './emf.ts'
 
@@ -60,11 +59,13 @@ const style: StyleSpecification = {
     },
   },
   glyphs: 'https://map.emfcamp.org/tiles/font/{fontstack}/{range}',
-  layers: sortBy(layers, [(item) => item.zindex || 0]).map((item) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { zindex: _, ...new_item } = item
-    return new_item
-  }),
+  layers: layers
+    .sort((a, b) => (b.zindex || 0) - (a.zindex || 0))
+    .map((item) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { zindex: _, ...new_item } = item
+      return new_item
+    }),
 }
 
 export default style

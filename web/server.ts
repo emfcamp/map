@@ -1,12 +1,11 @@
 import express from 'express'
-import serveStatic from 'serve-static'
 
 const PORT = 8080
 const HOST = '0.0.0.0'
 
 const app = express()
 app.use(
-  serveStatic('./dist', {
+  express.static('./dist', {
     index: ['index.html'],
   })
 )
