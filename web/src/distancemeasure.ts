@@ -47,9 +47,6 @@ class DistanceMeasure implements maplibregl.IControl {
         this._removeMeasuring()
       }
     })
-
-    this._distanceContainer = document.getElementById('distance')!
-
     this._container.appendChild(this._distanceButton)
     this._distanceButton.addEventListener('click', this._onClickDistanceMeasure.bind(this))
     this._map.on('click', (e) => this._measure(e))
@@ -71,6 +68,10 @@ class DistanceMeasure implements maplibregl.IControl {
 
   _setupMeasuring() {
     if (!this._map || this._measuring == true) return
+
+    this._distanceContainer = document.createElement('div')
+    this._map.getContainer().appendChild(this._distanceContainer)
+    this._distanceContainer.classList.add('distance-container')
     this._container.classList.add('measuring')
     this._measuring = true
     this._map.getCanvas().style.cursor = 'crosshair'
@@ -116,7 +117,8 @@ class DistanceMeasure implements maplibregl.IControl {
     this._map.removeLayer('measure-points')
     this._map.removeLayer('measure-lines')
     this._map.removeSource('geojson')
-    this._distanceContainer!.innerHTML = ''
+    if (this._distanceContainer) this._map.getContainer().removeChild(this._distanceContainer)
+    this._distanceContainer = undefined
     this._geojson.features = []
   }
 
