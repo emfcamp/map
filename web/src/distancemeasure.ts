@@ -43,6 +43,8 @@ class DistanceMeasure implements maplibregl.IControl {
     document.addEventListener('keyup', (e) => {
       if (e.key === 'Escape' && this._measuring) {
         this._removeMeasuring()
+      } else if (e.key === 'm' && !this._isTypingTarget(e.target)) {
+        this._onClickDistanceMeasure()
       }
     })
 
@@ -57,6 +59,12 @@ class DistanceMeasure implements maplibregl.IControl {
   onRemove() {
     this._container.parentNode.removeChild(this._container)
     this._map = undefined
+  }
+
+  _isTypingTarget(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) return false
+    const tag = target.tagName
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable
   }
 
   _onClickDistanceMeasure() {
