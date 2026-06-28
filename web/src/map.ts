@@ -55,8 +55,22 @@ async function loadIcons(map: maplibregl.Map) {
   }
 }
 
+const EMBED_ALLOWED_ORIGINS = ['https://report.emf.camp', 'https://panel.emf.camp']
+
+const isAllowedEmbedOrigin = (origin: string): boolean => {
+  if (EMBED_ALLOWED_ORIGINS.includes(origin)) return true
+  try {
+    const { hostname } = new URL(origin)
+    // allow *.*.internal (e.g. report.emf-forms.internal) for local dev
+    return hostname.endsWith('.internal') && hostname.split('.').length >= 3
+  } catch {
+    return false
+  }
+}
+
 interface EventMapOptions {
   embed: boolean
+  readonly?: boolean
 }
 
 export class EventMap {
@@ -114,7 +128,42 @@ export class EventMap {
 
     this.map.touchZoomRotate.disableRotation()
 
-    if (!options.embed) {
+    if (options.embed) {
+      document.querySelector('header')!.style.display = 'none'
+      this.map.on('load', () => {
+        this.map!.resize()
+      })
+
+      // Attach click-to-pin immediately; no handshake needed to gate this
+      if (!options.readonly) {
+        this.map.on('click', (e: maplibregl.MapMouseEvent) => {
+          this.marker!.setLocation(e.lngLat)
+        })
+      }
+
+      const sendView = (origin: string) => {
+        const c = this.map!.getCenter()
+        window.parent.postMessage(
+          { type: 'emf-view', zoom: this.map!.getZoom(), lat: c.lat, lon: c.lng },
+          origin
+        )
+      }
+
+      // Handshake validates parent origin for targeted postMessage replies
+      let embedActivated = false
+      window.addEventListener('message', (e: MessageEvent) => {
+        if (!embedActivated && e.data?.type === 'emf-embed-init' && isAllowedEmbedOrigin(e.origin)) {
+          embedActivated = true
+          this.marker!.parentOrigin = e.origin
+          this.map!.on('moveend', () => sendView(e.origin))
+          if (this.map!.loaded()) {
+            sendView(e.origin)
+          } else {
+            this.map!.on('load', () => sendView(e.origin))
+          }
+        }
+      })
+    } else {
       this.map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
 
       this.map.addControl(
@@ -149,6 +198,11 @@ export class EventMap {
 
     this.map.addControl(this.marker, 'top-right')
     this.map.addControl(new GridPosition('gridsquares'), 'bottom-right')
+
+    const markerParam = new URL(window.location.href).searchParams.get('marker')
+    if (markerParam) {
+      this.marker!.setURLString(markerParam)
+    }
 
     this.initContextMenu(!options.embed)
   }
