@@ -73,6 +73,7 @@ export class EventMap {
       new Layer('p', 'Paths', 'paths_', true),
       new Layer('v', 'Villages', 'villages_', true),
       new Layer('r', 'Phones', 'phones_', true),
+      new Layer('i', 'Noise prediction', 'noise', false),
     ]),
     new LayerGroup('Infrastructure', [
       new Layer('w', 'Power', 'power_'),

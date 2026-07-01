@@ -49,6 +49,11 @@ const style: StyleSpecification = {
       tileSize: 256,
       tiles: ['https://map.emfcamp.org/tiles/eastnor-ortho-202606/{z}/{x}/{y}'],
     },
+    noise: {
+      type: 'raster',
+      tileSize: 256,
+      tiles: ['https://map.emfcamp.org/tiles/emf2026-noise/{z}/{x}/{y}'],
+    },
     vehicles: {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] },

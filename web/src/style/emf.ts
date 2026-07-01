@@ -113,6 +113,12 @@ export const layers: LayerSpecificationWithZIndex[] = [
     },
   },
   {
+    id: 'noise',
+    type: 'raster',
+    source: 'noise',
+    minzoom: 5,
+  },
+  {
     id: 'background_natural_hedges_polygon',
     type: 'fill',
     source: 'site_plan',
