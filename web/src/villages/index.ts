@@ -21,7 +21,7 @@ class VillagesLayer {
     this._source = source
     this._layer = click_layer
     if (import.meta.env.DEV) {
-      this._api_url = 'http://localhost:2342'
+      this._api_url = ''
     } else {
       this._api_url = 'https://www.emfcamp.org'
     }

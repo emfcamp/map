@@ -5,6 +5,11 @@ import { renderSVG } from 'vite-plugin-render-svg'
 
 export default defineConfig({
   base: './',
+  server: {
+    proxy: {
+      '/api': 'http://localhost:2342',
+    },
+  },
   build: {
     // Suppress large chunk warning. There's not much we can do about this.
     chunkSizeWarningLimit: 1500,
