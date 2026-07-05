@@ -13,13 +13,14 @@ export default defineConfig({
       input: {
         index: resolve(import.meta.dirname, 'index.html'),
         'grist-widget': resolve(import.meta.dirname, 'grist-widget.html'),
-        component: resolve(import.meta.dirname, 'src/component.ts'),
+        'component.js': resolve(import.meta.dirname, 'src/component.ts'),
+        component: resolve(import.meta.dirname, 'component.html'),
       },
       output: {
         entryFileNames: (chunkInfo) => {
-          if (chunkInfo.name == 'component') {
+          if (chunkInfo.name == 'component.js') {
             // Component entrypoint
-            return '[name].js'
+            return '[name]'
           }
           return '[name].[hash].js'
         },
