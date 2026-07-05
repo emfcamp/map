@@ -7,6 +7,7 @@ Imported into the root map web component
 @import './contextmenu.css';
 @import '../villages/villages.css';
 @import '../export/export.css';
+@import '@russss/maplibregl-layer-switcher/layerswitcher.css';
 
 .layer-switcher {
   min-height: 30px;

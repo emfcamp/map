@@ -25,7 +25,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
-    "@russss/maplibregl-layer-switcher": "^2.1.1",
+    "@russss/maplibregl-layer-switcher": "^2.2.3",
     "@turf/length": "^7.3.5",
     "@types/express": "^5.0.6",
     "@types/geojson": "^7946.0.10",

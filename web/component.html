@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <meta name="encoding" content="UTF-8" />
     <title>Map Web Component</title>
+    <style src="./src/index.css"></style>
     <style>
       emf-map {
         width: 800px;
@@ -106,6 +107,12 @@
         </tr>
       </tbody>
     </table>
+
+    <h2>Content-Security-Policy</h2>
+    <p>
+      It appears you need to add <code>worker-src: blob:</code> as well as
+      <code>script-src: https://map.emfcamp.org</code>.
+    </p>
 
     <h2>Example</h2>
     <p>(view source to see how this works)</p>
