@@ -32,7 +32,7 @@ export async function loadIcons(map: maplibregl.Map) {
   Promise.all(
     images
       .map((image) => async () => {
-        const img = await map.loadImage(hostname + icons[image])
+        const img = await map.loadImage(hostname + '/' + icons[image])
         map.addImage(image, img.data, { pixelRatio: ratio })
       })
       .map((f) => f())
