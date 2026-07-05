@@ -115,6 +115,7 @@ export class EMFMap extends LitElement {
       new Layer('w', 'Power', 'power_'),
       new Layer('n', 'Network', 'network_'),
       new Layer('l', 'Lighting', 'lighting_'),
+      new Layer('W', 'Water', 'water_'),
     ]),
     new Layer('bs', 'Buried services', 'services_'),
   ]
