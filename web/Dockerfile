@@ -1,4 +1,5 @@
 FROM node:24-slim
+ENV VITE_HOSTNAME=https://map.emfcamp.org
 
 WORKDIR /app
 

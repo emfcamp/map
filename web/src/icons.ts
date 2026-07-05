@@ -4,6 +4,11 @@ export async function loadIcons(map: maplibregl.Map) {
   const ratio = Math.min(Math.round(window.devicePixelRatio), 2)
   const icons = manifest[ratio.toString()]
 
+  let hostname = ''
+  if (import.meta.env.VITE_HOSTNAME) {
+    hostname = import.meta.env.VITE_HOSTNAME
+  }
+
   const images = [
     'camping',
     'no-access',
@@ -27,7 +32,7 @@ export async function loadIcons(map: maplibregl.Map) {
   Promise.all(
     images
       .map((image) => async () => {
-        const img = await map.loadImage(icons[image])
+        const img = await map.loadImage(hostname + icons[image])
         map.addImage(image, img.data, { pixelRatio: ratio })
       })
       .map((f) => f())
@@ -36,7 +41,7 @@ export async function loadIcons(map: maplibregl.Map) {
   const sdfs = ['telehandler', 'golf-buggy', 'cherrypicker']
 
   for (const sdf of sdfs) {
-    const img = await map.loadImage(`/sdf/${sdf}.png`)
+    const img = await map.loadImage(`${hostname}/sdf/${sdf}.png`)
     map.addImage(sdf, img.data, { sdf: true })
   }
 }
