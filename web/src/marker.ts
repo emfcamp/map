@@ -7,17 +7,19 @@ class Marker implements maplibregl.IControl {
   location: any | null
   marker: any | null
   _map: maplibregl.Map | undefined
-  urlHash: URLHash
+  urlHash?: URLHash
 
-  constructor(urlHash: URLHash) {
+  constructor(urlHash: URLHash | undefined) {
     this.location = null
     this.marker = null
     this.urlHash = urlHash
-    this.urlHash.registerHandler('m', (string: string | null) => {
-      if (string) {
-        this.setURLString(string)
-      }
-    })
+    if (this.urlHash) {
+      this.urlHash.registerHandler('m', (string: string | null) => {
+        if (string) {
+          this.setURLString(string)
+        }
+      })
+    }
   }
 
   getURLString() {
@@ -47,7 +49,7 @@ class Marker implements maplibregl.IControl {
     }
   }
 
-  setLocation(location: maplibregl.LngLat | null) {
+  setLocation(location: maplibregl.LngLat | undefined) {
     if (!this._map) return
 
     if (location) {
@@ -56,7 +58,9 @@ class Marker implements maplibregl.IControl {
       this.location = null
     }
     this.updateLocation()
-    this.urlHash.setParameter('m', this.getURLString())
+    if (this.urlHash) {
+      this.urlHash.setParameter('m', this.getURLString())
+    }
   }
 
   updateLocation() {

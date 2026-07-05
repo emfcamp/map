@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <script type="module" rel="preload" src="/src/index.ts"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <meta name="encoding" content="UTF-8" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -14,11 +13,11 @@
   </head>
   <body>
     <noscript>You need Javascript enabled to view this map.</noscript>
-    <div id="map">
-      <header>
-        <h1>Electromagnetic Field 2026</h1>
-        <div id="subtitle">Eastnor Castle Deer Park, Herefordshire, UK</div>
-      </header>
-    </div>
+    <header>
+      <h1>Electromagnetic Field 2026</h1>
+      <div id="subtitle">Eastnor Castle Deer Park, Herefordshire, UK</div>
+    </header>
+    <emf-map-app></emf-map-app>
+    <script type="module" rel="preload" src="/src/index.ts"></script>
   </body>
 </html>

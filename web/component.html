@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta name="encoding" content="UTF-8" />
+    <title>Map Web Component</title>
+    <style>
+      emf-map {
+        width: 800px;
+        height: 600px;
+        border: 1px solid #333;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>EMF Map web component</h1>
+    <p>
+      The EMF map is embeddable as a
+      <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components">web component</a>.
+    </p>
+    <h2>Basic use</h2>
+    <p>Include the Javascript as a module, and then you can use the <code>emf-map</code> tag.</p>
+    <pre>
+      <code>
+&lt;emf-map
+  center="-2.37948,52.03975"
+  zoom="17"
+  marker="-2.37948,52.03975"
+  layers="a,b,p,t"
+&gt;
+&lt;emf-map&gt;
+&lt;script type="module" rel="preload" src="https://map.emfcamp.org/map.js"&gt;&lt;/script&gt;
+      </code>
+    </pre>
+
+    <h2>Attributes</h2>
+    <table>
+      <thead>
+        <th>Attribute</th>
+        <th>Description</th>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>center</code></td>
+          <td>Position to center the map at (<code>longitude, latitude</code>)</td>
+        </tr>
+        <tr>
+          <td><code>zoom</code></td>
+          <td>Zoom level (0-21 - you probably want something in the range 18-21)</td>
+        </tr>
+        <tr>
+          <td><code>layers</code></td>
+          <td>
+            A string of layer IDs which will be visible. This is the same as the string in the URL at
+            https://map.emfcamp.org (e.g. <code>a,b,p,t</code>)
+          </td>
+        </tr>
+        <tr>
+          <td><code>marker</code></td>
+          <td>Marker position (<code>longitude, latitude</code>)</td>
+        </tr>
+        <tr>
+          <td><code>clickForMarker</code></td>
+          <td>Whether the marker can be placed by clicking the map</td>
+        </tr>
+        <tr>
+          <td><code>navControls</code></td>
+          <td>Whether to show additional navigation controls (zoom buttons, geolocate)</td>
+        </tr>
+        <tr>
+          <td><code>urlHash</code></td>
+          <td>Whether to update the browser URL to save the map position</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Events</h2>
+    <p>
+      The following events are sent by the map component. These can be listened to in the normal DOM way,
+      using <code>addEventListener</code>.
+    </p>
+    <table>
+      <thead>
+        <th>Event</th>
+        <th>Description</th>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>load</code></td>
+          <td>
+            Emitted when the map has loaded. Can be used to do further customisation. The
+            <code>map</code> attribute of the event is the MapLibre map instance.
+          </td>
+        </tr>
+        <tr>
+          <td><code>marker</code></td>
+          <td>
+            Emitted when the marker is set, either through the <code>clickForMarker</code> feature or the
+            context menu. The <code>coords</code> attribute of the event contains the coordinates, or
+            <code>undefined</code> if the marker is cleared.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Example</h2>
+    <p>(view source to see how this works)</p>
+    <emf-map
+      id="map"
+      center="-2.37948,52.03975"
+      marker="-2.37948,52.03975"
+      zoom="17"
+      clickForMarker="true"
+      layers="a,b,p,t"
+    ></emf-map>
+    <script type="module" rel="preload" src="/src/component.ts"></script>
+    <button id="test">Set Center</button>
+    <script>
+      const map = document.getElementById('map')
+      document.getElementById('test').onclick = (ev) => {
+        map.setAttribute('center', '-2.375386,52.042972')
+      }
+      map.addEventListener('marker', (ev) => {
+        alert(`Marker position change: ${ev.coords}`)
+      })
+    </script>
+  </body>
+</html>

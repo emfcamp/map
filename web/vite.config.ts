@@ -13,8 +13,16 @@ export default defineConfig({
       input: {
         index: resolve(import.meta.dirname, 'index.html'),
         'grist-widget': resolve(import.meta.dirname, 'grist-widget.html'),
+        component: resolve(import.meta.dirname, 'src/component.ts'),
       },
       output: {
+        entryFileNames: (chunkInfo) => {
+          if (chunkInfo.name == 'component') {
+            // Component entrypoint
+            return '[name].js'
+          }
+          return '[name].[hash].js'
+        },
         manualChunks: (id) => {
           if (id.includes('node_modules/maplibre-gl')) {
             return 'maplibre'

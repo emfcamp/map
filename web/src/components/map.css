@@ -5,8 +5,8 @@ Imported into the root map web component
 
 @import './distancemeasure.css';
 @import './contextmenu.css';
-@import './villages/villages.css';
-@import './export/export.css';
+@import '../villages/villages.css';
+@import '../export/export.css';
 
 .layer-switcher {
   min-height: 30px;
