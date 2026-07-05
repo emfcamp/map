@@ -7,6 +7,10 @@ const app = express()
 app.use(
   express.static('./dist', {
     index: ['index.html'],
+    setHeaders: (res) => {
+      // Liberal CORS policy - we have no private data on this hostname
+      res.setHeader('Access-Control-Allow-Origin', '*')
+    },
   })
 )
 
