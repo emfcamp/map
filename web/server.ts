@@ -16,6 +16,8 @@ cached_paths.forEach((dir) =>
         res.setHeader('Access-Control-Allow-Origin', '*')
       },
       maxAge: '90d',
+      immutable: true,
+      lastModified: false,
     })
   )
 )
