@@ -1,14 +1,11 @@
 import { createHandlerBoundToURL, precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching'
 import { clientsClaim } from 'workbox-core'
-//import { StaleWhileRevalidate, CacheFirst, NetworkFirst } from 'workbox-strategies'
+import { CacheFirst, StaleWhileRevalidate } from 'workbox-strategies'
 import { registerRoute } from 'workbox-routing'
 
 declare let self: ServiceWorkerGlobalScope
 
 precacheAndRoute(self.__WB_MANIFEST)
-
-// FIXME: re-enable serviceworker caching of tiles
-/*
 
 function register(match_url: string, strategy: any) {
   const prefix = '/'
@@ -16,14 +13,8 @@ function register(match_url: string, strategy: any) {
   registerRoute(({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith(prefix + match_url), strategy)
 }
 
-register('capabilities/buildmap', new StaleWhileRevalidate())
-
-register('maps', new StaleWhileRevalidate({ cacheName: 'maps-20240527' }))
-
-register('data', new CacheFirst({ cacheName: 'basemaps-20240529' }))
-
-register('noc', new NetworkFirst())
-*/
+register('tiles', new StaleWhileRevalidate())
+register('icons', new CacheFirst())
 
 try {
   // Only catch requests to the root URL (a regex doesn't do this).
