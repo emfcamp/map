@@ -27,8 +27,6 @@ class Search extends LitElement {
   @state() private _query: string = ''
   @state() private _focused: boolean = false
 
-  onSelect?: (result: SearchResult) => void
-
   createRenderRoot() {
     return this
   }
@@ -94,7 +92,7 @@ class Search extends LitElement {
   }
 
   select(item: SearchResult) {
-    this.onSelect?.(item)
+    this.dispatchEvent(new CustomEvent<SearchResult>('select', { detail: item, bubbles: true, composed: true }))
     this._query = ''
     this._focused = false
   }

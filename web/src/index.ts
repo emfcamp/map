@@ -40,8 +40,10 @@ export class EMFMapApp extends LitElement {
     map.addControl(new VillagesEditor('villages', 'villages_symbol'), 'top-right')
 
     const search = new Search()
-    search.onSelect = (result: SearchResult) =>
-      this.flyTo(mapComponent, new maplibregl.LngLat(result.lngLat[0], result.lngLat[1]))
+    search.addEventListener('select', (e: Event) => {
+      const { lngLat } = (e as CustomEvent<SearchResult>).detail
+      this.flyTo(mapComponent, new maplibregl.LngLat(lngLat[0], lngLat[1]))
+    })
     document.getElementById('top-left-stack')?.appendChild(search)
 
     // Display export control only on browsers which are likely to be desktop browsers
