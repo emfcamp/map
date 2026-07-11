@@ -144,7 +144,9 @@ class Search extends LitElement {
     ]
 
     const results = await Promise.allSettled(providers.map((p) => this.loadGeoJSON(p)))
-    results.filter((r) => r.status === 'rejected').forEach((r) => console.warn('Search source failed to load:', r.reason))
+    results
+      .filter((r) => r.status === 'rejected')
+      .forEach((r) => console.warn('Search source failed to load:', r.reason))
     this._index = results.filter((r) => r.status === 'fulfilled').flatMap((r) => r.value)
   }
 
@@ -184,7 +186,9 @@ class Search extends LitElement {
   }
 
   select(item: SearchResult) {
-    this.dispatchEvent(new CustomEvent<SearchResult>('select', { detail: item, bubbles: true, composed: true }))
+    this.dispatchEvent(
+      new CustomEvent<SearchResult>('select', { detail: item, bubbles: true, composed: true })
+    )
     this._query = ''
   }
 
@@ -208,10 +212,11 @@ class Search extends LitElement {
           }}
         />
       </div>
-      ${matches.length > 0
-        ? html`
-            <ul class="search-results">
-              ${matches.map(
+      ${
+        matches.length > 0
+          ? html`
+              <ul class="search-results">
+                ${matches.map(
                 (item) => html`
                   <li
                     class="search-result"
@@ -223,9 +228,10 @@ class Search extends LitElement {
                   </li>
                 `
               )}
-            </ul>
-          `
-        : nothing}
+              </ul>
+            `
+          : nothing
+      }
     `
   }
 }
