@@ -3,15 +3,19 @@ import { FeatureCollection } from 'geojson'
 import './search.css'
 import { apiBase } from '../util'
 
+export enum SearchCategory {
+  Village = 'Village',
+}
+
 export interface SearchResult {
   name: string
-  category: string
+  category: SearchCategory
   lngLat: [number, number]
 }
 
 interface GeoJSONProvider {
   url: string
-  category: string
+  category: SearchCategory
 }
 
 const MAX_RESULTS = 20
@@ -58,7 +62,7 @@ class Search {
   }
 
   async loadIndex() {
-    const providers: GeoJSONProvider[] = [{ url: `${apiBase()}/api/villages.geojson`, category: 'Village' }]
+    const providers: GeoJSONProvider[] = [{ url: `${apiBase()}/api/villages.geojson`, category: SearchCategory.Village }]
 
     const results = await Promise.allSettled(providers.map((p) => this.loadGeoJSON(p)))
 
