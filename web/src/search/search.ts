@@ -36,11 +36,7 @@ class Search {
 
     this._results = el('ul.search-results', { style: 'display:none' })
 
-    this.element = el(
-      'div.search',
-      el('div.search-input-wrap', this._input),
-      this._results
-    )
+    this.element = el('div.search', el('div.search-input-wrap', this._input), this._results)
 
     this._input.addEventListener('input', () => this.render())
     this._input.addEventListener('focus', () => this.render())
@@ -62,9 +58,7 @@ class Search {
   }
 
   async loadIndex() {
-    const providers: GeoJSONProvider[] = [
-      { url: `${apiBase()}/api/villages.geojson`, category: 'Village' },
-    ]
+    const providers: GeoJSONProvider[] = [{ url: `${apiBase()}/api/villages.geojson`, category: 'Village' }]
 
     const results = await Promise.allSettled(providers.map((p) => this.loadGeoJSON(p)))
 
