@@ -19,9 +19,29 @@ interface TrackingLayer {
   features: Map<string, Feature>
 }
 
+const relativeTime = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
+
+function timeAgo(lastSeen: string): string {
+  const seconds = Math.round((Date.parse(lastSeen) - Date.now()) / 1000)
+  if (seconds > -60) return relativeTime.format(seconds, 'second')
+  if (seconds > -3600) return relativeTime.format(Math.round(seconds / 60), 'minute')
+  return relativeTime.format(Math.round(seconds / 3600), 'hour')
+}
+
 function lastSeenLine(props: Record<string, any>) {
   if (props.lastSeen == null) return undefined
-  return el('p', `Last seen ${new Date(props.lastSeen).toLocaleString()}`)
+  const time = el(
+    'time',
+    { datetime: props.lastSeen, title: new Date(props.lastSeen).toLocaleString() },
+    timeAgo(props.lastSeen)
+  )
+  return el('p', 'Last seen ', time)
+}
+
+function refreshTimes(content: HTMLElement) {
+  content.querySelectorAll('time').forEach((time) => {
+    time.textContent = timeAgo(time.dateTime)
+  })
 }
 
 function vehiclePopup(props: Record<string, any>) {
@@ -163,8 +183,11 @@ export function setupTracking(map: maplibregl.Map) {
 
   for (const layer of trackingLayers) {
     map.on('click', layer.layer, (e: maplibregl.MapLayerMouseEvent) => {
-      const props = e.features![0].properties
-      new maplibregl.Popup().setLngLat(e.lngLat).setDOMContent(layer.popup(props)).addTo(map)
+      const content = layer.popup(e.features![0].properties)
+      const popup = new maplibregl.Popup().setLngLat(e.lngLat).setDOMContent(content).addTo(map)
+
+      const ticker = setInterval(() => refreshTimes(content), 1000)
+      popup.on('close', () => clearInterval(ticker))
     })
 
     map.on('mouseenter', layer.layer, () => {
