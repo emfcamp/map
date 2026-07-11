@@ -28,6 +28,7 @@ export async function loadIcons(map: maplibregl.Map) {
     'network-switch-down',
     'phone',
     'golf-buggy',
+    'bus',
   ]
 
   Promise.all(

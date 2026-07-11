@@ -1,12 +1,12 @@
-.vehicles-popup {
+.tracking-popup {
   min-width: 150px;
   margin-top: -10px;
 }
 
-.vehicles-popup h3 {
+.tracking-popup h3 {
   font-size: 1.5em;
 }
 
-.vehicles-popup p {
+.tracking-popup p {
   margin: 0.3em 0 0;
 }
