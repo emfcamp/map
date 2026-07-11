@@ -838,6 +838,18 @@ export const layers: LayerSpecificationWithZIndex[] = [
     },
   },
   {
+    id: 'vehicles_symbol',
+    type: 'symbol',
+    source: 'vehicles',
+    minzoom: 16,
+    layout: {
+      'icon-image': 'golf-buggy',
+      'icon-size': ['interpolate', ['linear'], ['zoom'], 17, 0.08, 22, 0.22],
+      'icon-allow-overlap': true,
+      'icon-anchor': 'center',
+    },
+  },
+  {
     id: 'labels_camping',
     type: 'symbol',
     source: 'site_plan',
