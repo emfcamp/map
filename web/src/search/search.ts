@@ -133,7 +133,9 @@ class Search extends LitElement {
 
   connectedCallback() {
     super.connectedCallback()
-    if (this._index.length === 0) this.loadIndex()
+    if (this._index.length === 0) {
+      this.loadIndex()
+    }
   }
 
   async loadIndex() {
@@ -142,24 +144,22 @@ class Search extends LitElement {
     ]
 
     const results = await Promise.allSettled(providers.map((p) => this.loadGeoJSON(p)))
-
-    for (const result of results) {
-      if (result.status === 'fulfilled') {
-        this._index = [...this._index, ...result.value]
-      } else {
-        console.warn('Search source failed to load:', result.reason)
-      }
-    }
+    results.filter((r) => r.status === 'rejected').forEach((r) => console.warn('Search source failed to load:', r.reason))
+    this._index = results.filter((r) => r.status === 'fulfilled').flatMap((r) => r.value)
   }
 
   async loadGeoJSON(provider: GeoJSONProvider): Promise<SearchResult[]> {
     const resp = await fetch(provider.url)
-    if (!resp.ok) throw new Error(`${provider.url}: ${resp.status}`)
+    if (!resp.ok) {
+      throw new Error(`${provider.url}: ${resp.status}`)
+    }
     const data: FeatureCollection = await resp.json()
     const items: SearchResult[] = []
     for (const feature of data.features) {
       const name = feature.properties?.name
-      if (!name || feature.geometry?.type !== 'Point') continue
+      if (!name || feature.geometry?.type !== 'Point') {
+        continue
+      }
       const [lng, lat] = feature.geometry.coordinates
       items.push({ name, category: provider.category, lngLat: [lng, lat] })
     }
@@ -168,11 +168,15 @@ class Search extends LitElement {
 
   private match(query: string): SearchResult[] {
     const q = query.trim().toLowerCase()
-    if (!q) return []
+    if (!q) {
+      return []
+    }
     const scored: { item: SearchResult; score: number }[] = []
     for (const item of this._index) {
       const idx = item.name.toLowerCase().indexOf(q)
-      if (idx === -1) continue
+      if (idx === -1) {
+        continue
+      }
       scored.push({ item, score: idx === 0 ? 0 : 1 })
     }
     scored.sort((a, b) => a.score - b.score || a.item.name.localeCompare(b.item.name))
@@ -198,7 +202,9 @@ class Search extends LitElement {
           .value=${this._query}
           @input=${(e: InputEvent) => (this._query = (e.target as HTMLInputElement).value)}
           @keydown=${(e: KeyboardEvent) => {
-            if (e.key === 'Escape') this._query = ''
+            if (e.key === 'Escape') {
+              this._query = ''
+            }
           }}
         />
       </div>
