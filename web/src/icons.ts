@@ -27,6 +27,7 @@ export async function loadIcons(map: maplibregl.Map) {
     'network-switch-active',
     'network-switch-down',
     'phone',
+    'golf-buggy',
   ]
 
   Promise.all(
@@ -38,7 +39,7 @@ export async function loadIcons(map: maplibregl.Map) {
       .map((f) => f())
   )
 
-  const sdfs = ['telehandler', 'golf-buggy', 'cherrypicker']
+  const sdfs = ['telehandler', 'cherrypicker']
 
   for (const sdf of sdfs) {
     const img = await map.loadImage(`${hostname}/sdf/${sdf}.png`)

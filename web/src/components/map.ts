@@ -9,6 +9,7 @@ import { Layer, LayerGroup, LayerSwitcher, URLHash } from '@russss/maplibregl-la
 import ContextMenu from './contextmenu.ts'
 import { roundPosition } from '../util.ts'
 import { setupPhones } from '../phones.ts'
+import { setupVehicles } from '../vehicles.ts'
 import { loadIcons } from '../icons.ts'
 import { LngLat, LngLatLike } from 'maplibre-gl'
 
@@ -111,6 +112,7 @@ export class EMFMap extends LitElement {
       new Layer('r', 'Phones', 'phones_', true),
       new Layer('i', 'Noise prediction', 'noise', false),
     ]),
+    new LayerGroup('Tracking', [new Layer('V', 'Vehicles', 'vehicles_', true)]),
     new LayerGroup('Infrastructure', [
       new Layer('w', 'Power', 'power_'),
       new Layer('n', 'Network', 'network_'),
@@ -220,6 +222,7 @@ export class EMFMap extends LitElement {
 
     loadIcons(map)
     setupPhones(map)
+    setupVehicles(map)
 
     map.touchZoomRotate.disableRotation()
 
