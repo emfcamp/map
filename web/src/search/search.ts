@@ -173,16 +173,16 @@ class Search extends LitElement {
     if (!q) {
       return []
     }
-    const scored: { item: SearchResult; score: number }[] = []
+    const matches: { item: SearchResult; prefixMatch: boolean }[] = []
     for (const item of this._index) {
-      const idx = item.name.toLowerCase().indexOf(q)
-      if (idx === -1) {
+      const name = item.name.toLowerCase()
+      if (!name.includes(q)) {
         continue
       }
-      scored.push({ item, score: idx === 0 ? 0 : 1 })
+      matches.push({ item, prefixMatch: name.startsWith(q) })
     }
-    scored.sort((a, b) => a.score - b.score || a.item.name.localeCompare(b.item.name))
-    return scored.slice(0, MAX_RESULTS).map((s) => s.item)
+    matches.sort((a, b) => Number(b.prefixMatch) - Number(a.prefixMatch) || a.item.name.localeCompare(b.item.name))
+    return matches.slice(0, MAX_RESULTS).map((s) => s.item)
   }
 
   select(item: SearchResult) {
