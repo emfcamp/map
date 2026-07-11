@@ -1,4 +1,5 @@
-import { el, mount, setStyle } from 'redom'
+import { LitElement, html, nothing } from 'lit'
+import { customElement, state } from 'lit/decorators.js'
 import { FeatureCollection } from 'geojson'
 import './search.css'
 import { apiBase } from '../util'
@@ -20,49 +21,39 @@ interface GeoJSONProvider {
 
 const MAX_RESULTS = 20
 
-class Search {
-  element: HTMLElement
-  _input: HTMLInputElement
-  _results: HTMLElement
-  _index: SearchResult[] = []
-  _onSelect: (result: SearchResult) => void
+@customElement('emf-search')
+class Search extends LitElement {
+  @state() private _index: SearchResult[] = []
+  @state() private _query: string = ''
+  @state() private _focused: boolean = false
 
-  constructor(onSelect: (result: SearchResult) => void) {
-    this._onSelect = onSelect
+  onSelect?: (result: SearchResult) => void
 
-    this._input = el('input', {
-      type: 'search',
-      placeholder: 'Search villages...',
-      autocomplete: 'off',
-      spellcheck: false,
-      class: 'search-input',
-    }) as HTMLInputElement
+  createRenderRoot() {
+    return this
+  }
 
-    this._results = el('ul.search-results', { style: 'display:none' })
-
-    this.element = el('div.search', el('div.search-input-wrap', this._input), this._results)
-
-    this._input.addEventListener('input', () => this.render())
-    this._input.addEventListener('focus', () => this.render())
-    this._input.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        this._input.value = ''
-        this._input.blur()
-        this.render()
-      }
-    })
-    this._results.addEventListener('mousedown', (e) => e.preventDefault())
-    this.element.addEventListener('focusout', (e) => {
-      if (!this.element.contains(e.relatedTarget as Node)) {
-        setStyle(this._results, { display: 'none' })
-      }
-    })
-
+  connectedCallback() {
+    super.connectedCallback()
+    this.addEventListener('focusout', this._onFocusOut)
     this.loadIndex()
   }
 
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    this.removeEventListener('focusout', this._onFocusOut)
+  }
+
+  private _onFocusOut = (e: FocusEvent) => {
+    if (!this.contains(e.relatedTarget as Node)) {
+      this._focused = false
+    }
+  }
+
   async loadIndex() {
-    const providers: GeoJSONProvider[] = [{ url: `${apiBase()}/api/villages.geojson`, category: SearchCategory.Village }]
+    const providers: GeoJSONProvider[] = [
+      { url: `${apiBase()}/api/villages.geojson`, category: SearchCategory.Village },
+    ]
 
     const results = await Promise.allSettled(providers.map((p) => this.loadGeoJSON(p)))
 
@@ -73,7 +64,6 @@ class Search {
         console.warn('Search source failed to load:', result.reason)
       }
     }
-    if (document.activeElement === this._input) this.render()
   }
 
   async loadGeoJSON(provider: GeoJSONProvider): Promise<SearchResult[]> {
@@ -103,31 +93,53 @@ class Search {
     return scored.slice(0, MAX_RESULTS).map((s) => s.item)
   }
 
-  render() {
-    const matches = this.match(this._input.value)
-    this._results.innerHTML = ''
-
-    if (matches.length === 0) {
-      setStyle(this._results, { display: 'none' })
-      return
-    }
-
-    for (const item of matches) {
-      const row = el(
-        'li.search-result',
-        el('span.search-result-name', item.name),
-        el('span.search-result-category', item.category)
-      )
-      row.addEventListener('click', () => this.select(item))
-      mount(this._results, row)
-    }
-    setStyle(this._results, { display: 'block' })
+  select(item: SearchResult) {
+    this.onSelect?.(item)
+    this._query = ''
+    this._focused = false
   }
 
-  select(item: SearchResult) {
-    this._onSelect(item)
-    setStyle(this._results, { display: 'none' })
-    this._input.blur()
+  render() {
+    const matches = this._focused ? this.match(this._query) : []
+
+    return html`
+      <div class="search-input-wrap">
+        <input
+          type="search"
+          placeholder="Search villages..."
+          autocomplete="off"
+          .spellcheck=${false}
+          class="search-input"
+          .value=${this._query}
+          @input=${(e: InputEvent) => (this._query = (e.target as HTMLInputElement).value)}
+          @focus=${() => (this._focused = true)}
+          @keydown=${(e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+              this._query = ''
+              this._focused = false
+            }
+          }}
+        />
+      </div>
+      ${matches.length > 0
+        ? html`
+            <ul class="search-results">
+              ${matches.map(
+                (item) => html`
+                  <li
+                    class="search-result"
+                    @mousedown=${(e: MouseEvent) => e.preventDefault()}
+                    @click=${() => this.select(item)}
+                  >
+                    <span class="search-result-name">${item.name}</span>
+                    <span class="search-result-category">${item.category}</span>
+                  </li>
+                `
+              )}
+            </ul>
+          `
+        : nothing}
+    `
   }
 }
 
