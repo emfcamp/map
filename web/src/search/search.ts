@@ -130,23 +130,10 @@ class Search extends LitElement {
 
   @state() private _index: SearchResult[] = []
   @state() private _query: string = ''
-  @state() private _focused: boolean = false
 
   connectedCallback() {
     super.connectedCallback()
-    this.addEventListener('focusout', this._onFocusOut)
     if (this._index.length === 0) this.loadIndex()
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback()
-    this.removeEventListener('focusout', this._onFocusOut)
-  }
-
-  private _onFocusOut = (e: FocusEvent) => {
-    if (!this.contains(e.relatedTarget as Node)) {
-      this._focused = false
-    }
   }
 
   async loadIndex() {
@@ -195,11 +182,10 @@ class Search extends LitElement {
   select(item: SearchResult) {
     this.dispatchEvent(new CustomEvent<SearchResult>('select', { detail: item, bubbles: true, composed: true }))
     this._query = ''
-    this._focused = false
   }
 
   render() {
-    const matches = this._focused ? this.match(this._query) : []
+    const matches = this.match(this._query)
 
     return html`
       <div class="search-input-wrap">
@@ -211,12 +197,8 @@ class Search extends LitElement {
           class="search-input"
           .value=${this._query}
           @input=${(e: InputEvent) => (this._query = (e.target as HTMLInputElement).value)}
-          @focus=${() => (this._focused = true)}
           @keydown=${(e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-              this._query = ''
-              this._focused = false
-            }
+            if (e.key === 'Escape') this._query = ''
           }}
         />
       </div>
