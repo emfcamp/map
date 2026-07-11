@@ -1,6 +1,7 @@
 import { el, mount, setStyle } from 'redom'
 import { FeatureCollection } from 'geojson'
 import './search.css'
+import { apiBase } from '../util'
 
 export interface SearchResult {
   name: string
@@ -14,10 +15,6 @@ interface GeoJSONProvider {
 }
 
 const MAX_RESULTS = 20
-
-function apiBase(): string {
-  return import.meta.env.DEV ? '' : 'https://www.emfcamp.org'
-}
 
 class Search {
   element: HTMLElement

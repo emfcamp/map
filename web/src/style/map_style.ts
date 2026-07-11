@@ -1,5 +1,6 @@
 import { StyleSpecification } from 'maplibre-gl'
 import { layers } from './emf.ts'
+import { apiBase } from '../util'
 
 export const center: [number, number] = [-2.3784, 52.0411]
 export const zoom = 16
@@ -24,9 +25,7 @@ const style: StyleSpecification = {
     },
     villages: {
       type: 'geojson',
-      data: import.meta.env.DEV
-        ? '/api/villages.geojson'
-        : 'https://www.emfcamp.org/api/villages.geojson',
+      data: `${apiBase()}/api/villages.geojson`,
     },
     phones: {
       type: 'geojson',
