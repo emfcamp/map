@@ -39,7 +39,9 @@ export class EMFMapApp extends LitElement {
 
     map.addControl(new VillagesEditor('villages', 'villages_symbol'), 'top-right')
 
-    const search = new Search((result: SearchResult) => this.focusResult(mapComponent, result))
+    const search = new Search((result: SearchResult) =>
+      this.flyTo(mapComponent, new maplibregl.LngLat(result.lngLat[0], result.lngLat[1]))
+    )
     document.getElementById('top-left-stack')?.appendChild(search.element)
 
     // Display export control only on browsers which are likely to be desktop browsers
@@ -50,16 +52,15 @@ export class EMFMapApp extends LitElement {
     map.addControl(new GridPosition('gridsquares'), 'bottom-right')
   }
 
-  focusResult(mapComponent: EMFMap, result: SearchResult) {
+  flyTo(mapComponent: EMFMap, lngLat: maplibregl.LngLat) {
     const map = mapComponent.map
     if (!map) return
-    const [lng, lat] = result.lngLat
     map.flyTo({
-      center: [lng, lat],
-      zoom: Math.max(map.getZoom(), 19),
+      center: lngLat,
+      zoom: Math.max(map.getZoom(), 18),
       essential: true,
     })
-    mapComponent.markerComponent!.setLocation(new maplibregl.LngLat(lng, lat))
+    mapComponent.markerComponent!.setLocation(lngLat)
   }
 }
 
