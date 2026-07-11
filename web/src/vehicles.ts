@@ -44,11 +44,33 @@ async function loadSnapshot(map: maplibregl.Map) {
   render(map)
 }
 
-function subscribe(map: maplibregl.Map) {
-  const stream = new EventSource(`${TRACKING_HOST}/lorawan`)
+let stream: EventSource | undefined
+
+function trackingVisible(map: maplibregl.Map): boolean {
+  if (!map.getLayer(LAYER)) return false
+  return map.getLayoutProperty(LAYER, 'visibility') !== 'none'
+}
+
+function connect(map: maplibregl.Map) {
+  if (stream) return
+  loadSnapshot(map)
+  stream = new EventSource(`${TRACKING_HOST}/lorawan`)
   stream.onmessage = (e) => {
     upsert(JSON.parse(e.data))
     render(map)
+  }
+}
+
+function disconnect() {
+  stream?.close()
+  stream = undefined
+}
+
+function syncConnection(map: maplibregl.Map) {
+  if (trackingVisible(map)) {
+    connect(map)
+  } else {
+    disconnect()
   }
 }
 
@@ -84,8 +106,9 @@ export function setupVehicles(map: maplibregl.Map) {
   })
 
   map.on('load', () => {
-    loadSnapshot(map)
-    subscribe(map)
+    syncConnection(map)
     setInterval(() => render(map), 60_000)
   })
+
+  map.on('styledata', () => syncConnection(map))
 }
