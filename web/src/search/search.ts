@@ -181,7 +181,9 @@ class Search extends LitElement {
       }
       matches.push({ item, prefixMatch: name.startsWith(q) })
     }
-    matches.sort((a, b) => Number(b.prefixMatch) - Number(a.prefixMatch) || a.item.name.localeCompare(b.item.name))
+    matches.sort(
+      (a, b) => Number(b.prefixMatch) - Number(a.prefixMatch) || a.item.name.localeCompare(b.item.name)
+    )
     return matches.slice(0, MAX_RESULTS).map((s) => s.item)
   }
 
