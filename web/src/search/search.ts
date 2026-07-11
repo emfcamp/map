@@ -217,17 +217,17 @@ class Search extends LitElement {
           ? html`
               <ul class="search-results">
                 ${matches.map(
-                (item) => html`
-                  <li
-                    class="search-result"
-                    @mousedown=${(e: MouseEvent) => e.preventDefault()}
-                    @click=${() => this.select(item)}
-                  >
-                    <span class="search-result-name">${item.name}</span>
-                    <span class="search-result-category">${item.category}</span>
-                  </li>
-                `
-              )}
+                  (item) => html`
+                    <li
+                      class="search-result"
+                      @mousedown=${(e: MouseEvent) => e.preventDefault()}
+                      @click=${() => this.select(item)}
+                    >
+                      <span class="search-result-name">${item.name}</span>
+                      <span class="search-result-category">${item.category}</span>
+                    </li>
+                  `
+                )}
               </ul>
             `
           : nothing
