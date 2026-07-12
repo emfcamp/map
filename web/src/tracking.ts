@@ -1,5 +1,5 @@
 import maplibregl from 'maplibre-gl'
-import type { Feature, FeatureCollection } from 'geojson'
+import type { Feature, FeatureCollection, Position } from 'geojson'
 import { el, mount } from 'redom'
 import './tracking.css'
 
@@ -8,6 +8,13 @@ const TRACKING_HOST = import.meta.env.DEV ? 'http://localhost:3000' : 'https://e
 const TTL_MS = 3600 * 1000
 const COMPASS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
 const MOVING_MS = 0.5
+const MOVE_MS = 1000
+
+interface Move {
+  from: Position
+  to: Position
+  start: number
+}
 
 interface TrackingLayer {
   type: string
@@ -17,6 +24,8 @@ interface TrackingLayer {
   id: (props: Record<string, any>) => string | undefined
   popup: (props: Record<string, any>) => HTMLElement
   features: Map<string, Feature>
+  moves: Map<string, Move>
+  frame?: number
 }
 
 const relativeTime = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
@@ -103,6 +112,7 @@ const trackingLayers: TrackingLayer[] = [
     id: (props) => props.devEui,
     popup: vehiclePopup,
     features: new Map(),
+    moves: new Map(),
   },
   {
     type: 'bus',
@@ -112,6 +122,7 @@ const trackingLayers: TrackingLayer[] = [
     id: (props) => props.assetId?.toString(),
     popup: busPopup,
     features: new Map(),
+    moves: new Map(),
   },
   {
     type: 'people',
@@ -121,6 +132,7 @@ const trackingLayers: TrackingLayer[] = [
     id: (props) => props.devEui,
     popup: peoplePopup,
     features: new Map(),
+    moves: new Map(),
   },
 ]
 
@@ -129,17 +141,53 @@ function fresh(feature: Feature): boolean {
   return isNaN(lastSeen) || Date.now() - lastSeen < TTL_MS
 }
 
+function ease(t: number): number {
+  return t < 0.5 ? 2 * t * t : 1 - (2 - 2 * t) ** 2 / 2
+}
+
+function moving(layer: TrackingLayer, id: string, now: number): Position | undefined {
+  const move = layer.moves.get(id)
+  if (!move) return undefined
+  const t = (now - move.start) / MOVE_MS
+  if (t >= 1) {
+    layer.moves.delete(id)
+    return undefined
+  }
+  const p = ease(t)
+  return [
+    move.from[0] + (move.to[0] - move.from[0]) * p,
+    move.from[1] + (move.to[1] - move.from[1]) * p,
+  ]
+}
+
 function render(map: maplibregl.Map, layer: TrackingLayer) {
   for (const [id, feature] of layer.features) {
-    if (!fresh(feature)) layer.features.delete(id)
+    if (!fresh(feature)) {
+      layer.features.delete(id)
+      layer.moves.delete(id)
+    }
   }
   const source = map.getSource(layer.source) as maplibregl.GeoJSONSource | undefined
   if (!source) return
+
+  const now = performance.now()
   const collection: FeatureCollection = {
     type: 'FeatureCollection',
-    features: [...layer.features.values()],
+    features: [...layer.features].map(([id, feature]) => {
+      const coordinates = moving(layer, id, now)
+      if (!coordinates) return feature
+      return { ...feature, geometry: { type: 'Point', coordinates } }
+    }),
   }
   source.setData(collection)
+
+  if (layer.frame != null) cancelAnimationFrame(layer.frame)
+  layer.frame = layer.moves.size
+    ? requestAnimationFrame(() => {
+        layer.frame = undefined
+        render(map, layer)
+      })
+    : undefined
 }
 
 function upsert(layer: TrackingLayer, feature: Feature) {
@@ -147,6 +195,17 @@ function upsert(layer: TrackingLayer, feature: Feature) {
   if (!props) return
   const id = layer.id(props)
   if (id == null) return
+
+  const previous = layer.features.get(id)
+  if (previous?.geometry.type === 'Point' && feature.geometry.type === 'Point') {
+    const now = performance.now()
+    const from = moving(layer, id, now) ?? previous.geometry.coordinates
+    const to = feature.geometry.coordinates
+    if (from[0] !== to[0] || from[1] !== to[1]) {
+      layer.moves.set(id, { from, to, start: now })
+    }
+  }
+
   layer.features.set(id, feature)
 }
 
@@ -183,6 +242,7 @@ function syncConnection(map: maplibregl.Map) {
   for (const layer of trackingLayers) {
     if (enabled.includes(layer)) continue
     layer.features.clear()
+    layer.moves.clear()
     render(map, layer)
   }
 
