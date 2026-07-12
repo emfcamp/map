@@ -850,6 +850,30 @@ export const layers: LayerSpecificationWithZIndex[] = [
     },
   },
   {
+    id: 'bus_symbol',
+    type: 'symbol',
+    source: 'bus',
+    minzoom: 16,
+    layout: {
+      'icon-image': 'bus',
+      'icon-size': ['interpolate', ['linear'], ['zoom'], 17, 0.05, 22, 0.15],
+      'icon-allow-overlap': true,
+      'icon-anchor': 'center',
+    },
+  },
+  {
+    id: 'people_symbol',
+    type: 'symbol',
+    source: 'people',
+    minzoom: 16,
+    layout: {
+      'icon-image': 'person',
+      'icon-size': ['interpolate', ['linear'], ['zoom'], 17, 0.05, 22, 0.15],
+      'icon-allow-overlap': true,
+      'icon-anchor': 'center',
+    },
+  },
+  {
     id: 'labels_camping',
     type: 'symbol',
     source: 'site_plan',

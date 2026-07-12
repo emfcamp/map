@@ -58,6 +58,14 @@ const style: StyleSpecification = {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] },
     },
+    bus: {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+    },
+    people: {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+    },
     grist_markers: {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] },
