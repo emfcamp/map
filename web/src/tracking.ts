@@ -154,10 +154,7 @@ function moving(layer: TrackingLayer, id: string, now: number): Position | undef
     return undefined
   }
   const p = ease(t)
-  return [
-    move.from[0] + (move.to[0] - move.from[0]) * p,
-    move.from[1] + (move.to[1] - move.from[1]) * p,
-  ]
+  return [move.from[0] + (move.to[0] - move.from[0]) * p, move.from[1] + (move.to[1] - move.from[1]) * p]
 }
 
 function render(map: maplibregl.Map, layer: TrackingLayer) {
