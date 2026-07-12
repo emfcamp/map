@@ -45,10 +45,12 @@ function refreshTimes(content: HTMLElement) {
 }
 
 function vehiclePopup(props: Record<string, any>) {
-  const vehicleName = `${props.vehicleType}${props.registration ? ` (${props.registration})` : ''}`
+  const vehicleName = props.vehicleType
+    ? `${props.vehicleType}${props.registration ? ` (${props.registration})` : ''}`
+    : `Tracker ${props.deviceName}`
 
   const content = el('.tracking-popup', el('h3', vehicleName))
-  if (props.registration != null) {
+  if (props.vehicleType != null) {
     mount(content, el('p', `Tracker ${props.deviceName}`))
   }
   if (props.battery != null) {
@@ -79,9 +81,22 @@ function busPopup(props: Record<string, any>) {
   return content
 }
 
+function peoplePopup(props: Record<string, any>) {
+  const content = el('.tracking-popup', el('h3', props.name ?? props.deviceName))
+  if (props.battery != null) {
+    mount(content, el('p', `Battery ${props.battery}%`))
+  }
+  if (props.temperature != null) {
+    mount(content, el('p', `Temperature ${props.temperature}°C`))
+  }
+  const lastSeen = lastSeenLine(props)
+  if (lastSeen) mount(content, lastSeen)
+  return content
+}
+
 const trackingLayers: TrackingLayer[] = [
   {
-    type: 'lorawan',
+    type: 'vehicles',
     layer: 'vehicles_symbol',
     source: 'vehicles',
     snapshot: 'vehicles.geojson',
@@ -96,6 +111,15 @@ const trackingLayers: TrackingLayer[] = [
     snapshot: 'bus.geojson',
     id: (props) => props.assetId?.toString(),
     popup: busPopup,
+    features: new Map(),
+  },
+  {
+    type: 'people',
+    layer: 'people_symbol',
+    source: 'people',
+    snapshot: 'people.geojson',
+    id: (props) => props.devEui,
+    popup: peoplePopup,
     features: new Map(),
   },
 ]

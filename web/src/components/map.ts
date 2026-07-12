@@ -115,6 +115,7 @@ export class EMFMap extends LitElement {
     new LayerGroup('Tracking', [
       new Layer('V', 'Vehicles', 'vehicles_', true),
       new Layer('B', 'Busses', 'bus_', true),
+      new Layer('P', 'People', 'people_', false),
     ]),
     new LayerGroup('Infrastructure', [
       new Layer('w', 'Power', 'power_'),
