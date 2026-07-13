@@ -2,12 +2,14 @@ import { VectorTile } from '@mapbox/vector-tile'
 import Pbf from 'pbf'
 import maplibregl, { GeoJSONSource } from 'maplibre-gl'
 import { center } from '../style/map_style.ts'
+import { slugify } from '../venueurlhash.ts'
 
 export type SearchCategory = 'structure' | 'area' | 'camping' | 'parking' | 'gate' | 'village'
 
 export interface SearchEntry {
   displayName: string
   normalized: string
+  slug: string
   category: SearchCategory
   coords: [number, number]
   importance: number
@@ -66,10 +68,21 @@ function makeEntry(
   return {
     displayName,
     normalized: normalize(displayName),
+    slug: slugify(displayName),
     category,
     coords: geometry.coordinates as [number, number],
     importance,
   }
+}
+
+/* Resolve a URL venue slug to entries. Exact matches win (duplicate names
+   resolve together); otherwise fall back to hyphen-boundary prefixes so
+   #parking matches every "Parking: …" entry but #stage never matches
+   "Backstage". Deliberately not fuzzy: URL slugs should be predictable. */
+export function resolveSlug(entries: SearchEntry[], slug: string): SearchEntry[] {
+  const exact = entries.filter((entry) => entry.slug === slug)
+  if (exact.length > 0) return exact
+  return entries.filter((entry) => entry.slug.startsWith(slug + '-'))
 }
 
 interface LayerExtractor {
