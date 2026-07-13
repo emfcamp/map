@@ -1,7 +1,7 @@
 import { el, mount } from 'redom'
 import maplibregl, { GeoJSONSource, LngLatBounds } from 'maplibre-gl'
 import type { SearchCategory, SearchEntry, SearchIndex } from './searchindex.ts'
-import { slugify } from '../venueurlhash.ts'
+import { slugify, isVenueSlug, VENUE_MOVE } from '../venueurlhash.ts'
 import type VenueURLHash from '../venueurlhash.ts'
 
 const categoryZoom: Record<SearchCategory, number> = {
@@ -90,7 +90,14 @@ class SearchControl implements maplibregl.IControl {
       this._clear()
       this._input.focus()
     })
-    this._input.addEventListener('input', () => this._renderResults())
+    this._input.addEventListener('input', () => {
+      // Typing takes over from any in-flight URL slug resolution
+      if (this._pendingSlug) {
+        this._pendingSlug = null
+        this._urlHash?.setVenueSlug(null)
+      }
+      this._renderResults()
+    })
     this._input.addEventListener('focus', () => this._renderResults())
     this._input.addEventListener('keydown', (e) => this._onInputKeyDown(e))
     // Escape works from anywhere in the expanded bar, not just the input
@@ -180,9 +187,10 @@ class SearchControl implements maplibregl.IControl {
         this._resolveFn = module.resolveSlug
         this._indexError = false
         this._index = await module.buildIndex(map, () => {
-          // Villages can merge in after the first render
+          // Villages can merge in after the first render; this callback also
+          // marks the index as final
           if (this._container.classList.contains('expanded')) this._renderResults()
-          if (this._pendingSlug) this._attemptSlugResolution()
+          if (this._pendingSlug) this._attemptSlugResolution(true)
         })
         this._renderResults()
       })
@@ -212,7 +220,7 @@ class SearchControl implements maplibregl.IControl {
     this._attemptSlugResolution()
   }
 
-  _attemptSlugResolution() {
+  _attemptSlugResolution(indexFinal: boolean = false) {
     const slug = this._pendingSlug
     if (!slug || !this._index || !this._resolveFn) return
     // A user gesture during the async gap may have cleared the slug
@@ -222,8 +230,14 @@ class SearchControl implements maplibregl.IControl {
     }
     const entries = this._resolveFn(this._index.entries, slug)
     if (entries.length === 0) {
-      // Kept pending: villages may still merge in and resolve it
       console.warn(`Search: no venue matches #${slug}`)
+      if (indexFinal) {
+        // Dead link (typo or renamed venue): give up and revert the URL so a
+        // late village merge can't teleport the user afterwards
+        this._pendingSlug = null
+        this._urlHash?.setVenueSlug(null)
+      }
+      // Otherwise kept pending: villages may still merge in and resolve it
       return
     }
     this._pendingSlug = null
@@ -369,18 +383,24 @@ class SearchControl implements maplibregl.IControl {
      are framed together. Shared by search selection and URL slug resolution. */
   _focusEntries(entries: SearchEntry[]) {
     this._setHighlights(entries)
+    // VENUE_MOVE marks these camera moves as venue-initiated so VenueURLHash
+    // doesn't treat them as the user navigating away
     if (entries.length === 1) {
       const entry = entries[0]
-      this._map?.flyTo({ center: entry.coords, zoom: categoryZoom[entry.category] })
+      this._map?.flyTo({ center: entry.coords, zoom: categoryZoom[entry.category] }, VENUE_MOVE)
     } else {
       const bounds = entries.reduce(
         (b, entry) => b.extend(entry.coords),
         new LngLatBounds(entries[0].coords, entries[0].coords)
       )
-      this._map?.fitBounds(bounds, {
-        padding: { top: 90, bottom: 50, left: 50, right: 50 },
-        maxZoom: MULTI_RESULT_MAX_ZOOM,
-      })
+      this._map?.fitBounds(
+        bounds,
+        {
+          padding: { top: 90, bottom: 50, left: 50, right: 50 },
+          maxZoom: MULTI_RESULT_MAX_ZOOM,
+        },
+        VENUE_MOVE
+      )
     }
   }
 
@@ -393,14 +413,19 @@ class SearchControl implements maplibregl.IControl {
 
   _selectAll() {
     if (this._urlHash) {
-      // Only mint a slug the resolver would round-trip (e.g. #parking), never
-      // a dead link from a partial query like "sta"
+      // Only mint a slug when a link recipient would see exactly what the
+      // sharer sees: the slug must resolve to the same set search() framed
+      // (search is fuzzy, resolveSlug is not — e.g. "stage" fuzzy-matches
+      // "Backstage" but #stage would not)
       const slug = slugify(this._input.value.trim())
-      const resolvable =
-        /^[a-z]/.test(slug) && this._index && this._resolveFn
-          ? this._resolveFn(this._index.entries, slug)
-          : []
-      this._urlHash.setVenueSlug(resolvable.length > 0 ? slug : null)
+      let roundTrips = false
+      if (isVenueSlug(slug) && this._index && this._resolveFn) {
+        const resolved = this._resolveFn(this._index.entries, slug)
+        const resolvedKeys = resolved.map((e) => e.slug + '@' + e.coords.join()).sort()
+        const resultKeys = this._results.map((e) => e.slug + '@' + e.coords.join()).sort()
+        roundTrips = resolved.length > 0 && resolvedKeys.join('|') === resultKeys.join('|')
+      }
+      this._urlHash.setVenueSlug(roundTrips ? slug : null)
     }
     this._focusEntries(this._results)
     this._afterSelection()

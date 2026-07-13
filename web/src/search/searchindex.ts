@@ -2,7 +2,7 @@ import { VectorTile } from '@mapbox/vector-tile'
 import Pbf from 'pbf'
 import maplibregl, { GeoJSONSource } from 'maplibre-gl'
 import { center } from '../style/map_style.ts'
-import { slugify } from '../venueurlhash.ts'
+import { fold, slugify } from '../venueurlhash.ts'
 
 export type SearchCategory = 'structure' | 'area' | 'camping' | 'parking' | 'gate' | 'village'
 
@@ -31,11 +31,7 @@ const TILE_FETCH_TIMEOUT_MS = 5000
 const DEFAULT_IMPORTANCE = 3
 
 function normalize(s: string): string {
-  return s
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim()
+  return fold(s).trim()
 }
 
 function tileForPoint(lng: number, lat: number, z: number): { x: number; y: number } {
@@ -236,8 +232,8 @@ export async function buildIndex(map: maplibregl.Map, onUpdate?: () => void): Pr
   const sitePlan = await sitePlanEntries(map)
   const index: SearchIndex = { entries: sitePlan.entries, offline: sitePlan.offline }
   villagesPromise.then((villages) => {
-    if (villages.length === 0) return
     for (const village of villages) index.entries.push(village)
+    // Fires even with no villages: it doubles as the "index is final" signal
     onUpdate?.()
   })
   return index
