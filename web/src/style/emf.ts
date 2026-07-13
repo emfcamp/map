@@ -3,6 +3,8 @@ import { LayerSpecificationWithZIndex } from './types'
 
 const backgroundColour = '#DBE8A5'
 const waterColour = '#2EADD9'
+// EMF theme pink — matches the PWA theme_color and the search control accent
+const searchHighlightColour = '#FB48C4'
 
 const campingColours = {
   camping: '#AFC944',
@@ -1158,4 +1160,38 @@ export const layers: LayerSpecificationWithZIndex[] = [
       'icon-opacity': ['case', ['boolean', ['feature-state', 'grist-selected'], false], 1, 0],
     },
     },*/
+  {
+    id: 'search-results-halo',
+    type: 'circle',
+    source: 'search_results',
+    paint: {
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 14, 12, 19, 26],
+      'circle-color': searchHighlightColour,
+      'circle-opacity': 0.25,
+      'circle-stroke-color': searchHighlightColour,
+      'circle-stroke-width': 3,
+      'circle-stroke-opacity': 0.9,
+    },
+  },
+  {
+    id: 'search-results-label',
+    type: 'symbol',
+    source: 'search_results',
+    layout: {
+      'icon-image': 'marker',
+      'icon-anchor': 'bottom',
+      'icon-allow-overlap': true,
+      'text-field': '{name}',
+      'text-font': ['Raleway SemiBold'],
+      'text-size': 13,
+      'text-anchor': 'top',
+      'text-offset': [0, 0.4],
+      'text-optional': true,
+    },
+    paint: {
+      'text-color': 'rgba(50, 50, 50, 1)',
+      'text-halo-color': 'rgba(255, 255, 255, 0.9)',
+      'text-halo-width': 2,
+    },
+  },
 ]

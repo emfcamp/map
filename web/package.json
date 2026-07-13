@@ -25,6 +25,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
+    "@mapbox/vector-tile": "^2.0.4",
     "@russss/maplibregl-layer-switcher": "^2.2.3",
     "@turf/length": "^7.3.5",
     "@types/express": "^5.0.6",
@@ -36,6 +37,7 @@
     "eslint-config-prettier": "^10.1.8",
     "express": "^5.2.1",
     "maplibre-gl": "^5",
+    "pbf": "^4.0.2",
     "prettier": "^3.0.0",
     "redom": "^3.29.1",
     "ts-node": "^10.9.1",
