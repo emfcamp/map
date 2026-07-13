@@ -7,6 +7,7 @@ import DistanceMeasure from './components/distancemeasure.ts'
 import VillagesEditor from './villages/index.ts'
 import InstallControl from './installcontrol.ts'
 import ExportControl from './export/export.ts'
+import SearchControl from './search/searchcontrol.ts'
 import { GridPosition } from './grid.ts'
 import './components/map'
 import { loadIcons } from './icons.ts'
@@ -33,6 +34,7 @@ export class EMFMapApp extends LitElement {
     const map = mapComponent.map!
 
     map.addControl(new DistanceMeasure(), 'top-right')
+    map.addControl(new SearchControl(), 'top-right')
     map.addControl(new InstallControl(), 'top-left')
 
     map.addControl(new VillagesEditor('villages', 'villages_symbol'), 'top-right')

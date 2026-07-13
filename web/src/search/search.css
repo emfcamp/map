@@ -1,0 +1,162 @@
+.search-ctrl {
+  display: flex;
+  align-items: center;
+}
+
+.search-toggle {
+  min-width: 30px;
+  min-height: 30px;
+  flex: 0 0 auto;
+  background: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2210%22%20r%3D%226%22%20fill%3D%22none%22%20stroke%3D%22%23333%22%20stroke-width%3D%222.5%22/%3E%3Cline%20x1%3D%2214.5%22%20y1%3D%2214.5%22%20x2%3D%2220.5%22%20y2%3D%2220.5%22%20stroke%3D%22%23333%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E')
+    white;
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+  background-position: center;
+}
+
+.search-toggle.active {
+  box-shadow: inset 0 0 0 2px #fb48c4;
+}
+
+.search-panel {
+  display: none;
+}
+
+/* Expanded: a bar fixed across the top of the screen, above the site header,
+   with the results dropdown overlaying the map below it */
+.maplibregl-ctrl-top-right .maplibregl-ctrl.search-ctrl.expanded {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  border-radius: 0;
+  z-index: 3;
+}
+
+.search-ctrl.expanded .search-toggle {
+  border-radius: 0;
+  min-height: 36px;
+}
+
+.search-ctrl.expanded .search-panel {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+
+.search-input-row {
+  display: flex;
+  align-items: center;
+  height: 36px;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: none;
+  padding: 0 6px;
+  /* 16px stops iOS zooming the page when the input is focused */
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.search-clear {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  margin-right: 4px;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #666;
+  font-size: 14px;
+}
+
+.search-clear:hover {
+  background-color: #eee;
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  max-height: min(60vh, 480px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.search-results:empty {
+  display: none;
+}
+
+.search-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 40px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.search-result:hover,
+.search-result.active {
+  background-color: #fde5f5;
+}
+
+.search-result-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-note {
+  display: block;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #666;
+}
+
+.search-badge {
+  flex: 0 0 auto;
+  padding: 2px 7px;
+  border-radius: 9px;
+  font-size: 10px;
+  color: white;
+}
+
+.search-badge-structure {
+  background-color: #d6289f;
+}
+
+.search-badge-area {
+  background-color: #757575;
+}
+
+.search-badge-camping {
+  background-color: #7a9021;
+}
+
+.search-badge-parking {
+  background-color: #3273b8;
+}
+
+.search-badge-gate {
+  background-color: #cd7015;
+}
+
+.search-badge-village {
+  background-color: #7a4bbd;
+}
