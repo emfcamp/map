@@ -5,7 +5,8 @@ import { customElement, property } from 'lit/decorators.js'
 import maplibregl from 'maplibre-gl'
 import map_style from '../style/map_style.ts'
 import Marker from '../marker.ts'
-import { Layer, LayerGroup, LayerSwitcher, URLHash } from '@russss/maplibregl-layer-switcher'
+import { Layer, LayerGroup, LayerSwitcher } from '@russss/maplibregl-layer-switcher'
+import VenueURLHash from '../venueurlhash.ts'
 import ContextMenu from './contextmenu.ts'
 import { roundPosition } from '../util.ts'
 import { setupPhones } from '../phones.ts'
@@ -127,7 +128,7 @@ export class EMFMap extends LitElement {
   ]
   map?: maplibregl.Map
   layer_switcher?: LayerSwitcher
-  url_hash?: URLHash
+  url_hash?: VenueURLHash
   markerComponent?: Marker
 
   /* Whether extended nav controls are present (zoom in/out buttons, and geolocate control) */
@@ -182,7 +183,7 @@ export class EMFMap extends LitElement {
     this.layer_switcher = new LayerSwitcher(this.layer_config)
 
     if (this.urlHash) {
-      this.url_hash = new URLHash(this.layer_switcher)
+      this.url_hash = new VenueURLHash(this.layer_switcher)
       this.layer_switcher.urlhash = this.url_hash
       map_options = this.url_hash.init(map_options)
     }

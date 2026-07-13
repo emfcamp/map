@@ -34,7 +34,7 @@ export class EMFMapApp extends LitElement {
     const map = mapComponent.map!
 
     map.addControl(new DistanceMeasure(), 'top-right')
-    map.addControl(new SearchControl(), 'top-right')
+    map.addControl(new SearchControl(mapComponent.url_hash), 'top-right')
     map.addControl(new InstallControl(), 'top-left')
 
     map.addControl(new VillagesEditor('villages', 'villages_symbol'), 'top-right')
