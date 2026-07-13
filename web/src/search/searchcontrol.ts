@@ -190,8 +190,12 @@ class SearchControl implements maplibregl.IControl {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault()
       if (this._results.length === 0) return
-      const delta = e.key === 'ArrowDown' ? 1 : -1
-      this._activeIndex = (this._activeIndex + delta + this._results.length) % this._results.length
+      if (this._activeIndex === -1) {
+        this._activeIndex = e.key === 'ArrowDown' ? 0 : this._results.length - 1
+      } else {
+        const delta = e.key === 'ArrowDown' ? 1 : -1
+        this._activeIndex = (this._activeIndex + delta + this._results.length) % this._results.length
+      }
       this._updateActiveRow()
     } else if (e.key === 'Enter') {
       e.preventDefault()
