@@ -70,6 +70,10 @@ const style: StyleSpecification = {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] },
     },
+    search_results: {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+    },
   },
   glyphs: 'https://map.emfcamp.org/tiles/font/{fontstack}/{range}',
   layers: layers
