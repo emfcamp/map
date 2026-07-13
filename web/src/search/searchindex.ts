@@ -71,14 +71,18 @@ function makeEntry(
   }
 }
 
-/* Resolve a URL venue slug to entries. Exact matches win (duplicate names
-   resolve together); otherwise fall back to hyphen-boundary prefixes so
-   #parking matches every "Parking: …" entry but #stage never matches
-   "Backstage". Deliberately not fuzzy: URL slugs should be predictable. */
+/* Resolve a URL venue slug to entries, most-specific tier first:
+   1. exact — duplicate names resolve together
+   2. prefix at a hyphen boundary — #parking matches every "Parking: …"
+   3. containment at hyphen boundaries — #robot-arms matches "The Robot Arms"
+   Hyphen boundaries keep it predictable: #stage never matches "Backstage".
+   Deliberately not fuzzy: URL slugs should be guessable and stable. */
 export function resolveSlug(entries: SearchEntry[], slug: string): SearchEntry[] {
   const exact = entries.filter((entry) => entry.slug === slug)
   if (exact.length > 0) return exact
-  return entries.filter((entry) => entry.slug.startsWith(slug + '-'))
+  const prefixed = entries.filter((entry) => entry.slug.startsWith(slug + '-'))
+  if (prefixed.length > 0) return prefixed
+  return entries.filter((entry) => entry.slug.includes('-' + slug + '-') || entry.slug.endsWith('-' + slug))
 }
 
 interface LayerExtractor {
