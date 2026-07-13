@@ -91,6 +91,11 @@ class SearchControl implements maplibregl.IControl {
     this._container.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') this._onEscape(e)
     })
+    // DistanceMeasure cancels measuring on a document-level Escape keyup;
+    // don't leak Escape presses that belong to the search bar
+    this._container.addEventListener('keyup', (e) => {
+      if (e.key === 'Escape') e.stopPropagation()
+    })
     // Close the dropdown only when focus leaves the whole widget, so tabbing
     // between the input and the clear button doesn't dismiss results
     this._container.addEventListener('focusout', (e) => {
