@@ -14,8 +14,19 @@
   background-position: center;
 }
 
+/* #fb48c4 is the EMF theme pink (PWA theme_color, search highlight layers) */
 .search-toggle.active {
   box-shadow: inset 0 0 0 2px #fb48c4;
+}
+
+.search-toggle:focus-visible,
+.search-clear:focus-visible {
+  outline: 2px solid #fb48c4;
+  outline-offset: -2px;
+}
+
+.search-input:focus-visible {
+  box-shadow: inset 0 -2px 0 #fb48c4;
 }
 
 .search-panel {
@@ -66,9 +77,8 @@
 
 .search-clear {
   flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
-  margin-right: 4px;
+  width: 36px;
+  height: 36px;
   border: none;
   background: none;
   border-radius: 4px;
@@ -129,32 +139,33 @@
   color: #666;
 }
 
+/* Badge backgrounds are chosen for >= 4.5:1 WCAG AA contrast with white text */
 .search-badge {
   flex: 0 0 auto;
   padding: 2px 7px;
   border-radius: 9px;
-  font-size: 10px;
+  font-size: 11px;
   color: white;
 }
 
 .search-badge-structure {
-  background-color: #d6289f;
+  background-color: #b0177f;
 }
 
 .search-badge-area {
-  background-color: #757575;
+  background-color: #6b6b6b;
 }
 
 .search-badge-camping {
-  background-color: #7a9021;
+  background-color: #5e6f19;
 }
 
 .search-badge-parking {
-  background-color: #3273b8;
+  background-color: #2a62a0;
 }
 
 .search-badge-gate {
-  background-color: #cd7015;
+  background-color: #a85a10;
 }
 
 .search-badge-village {

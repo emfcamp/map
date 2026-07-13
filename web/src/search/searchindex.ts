@@ -20,18 +20,56 @@ export interface SearchIndex {
   offline: boolean
 }
 
-// Zoom level at which the whole site fits in a single site_plan tile
-const INDEX_TILE_ZOOM = 12
+/* Zoom level at which the whole site fits comfortably inside a single
+   site_plan tile. z11 keeps the site centre well away from every tile edge,
+   so the venue moving between events can't silently drop features that a
+   tighter tile would clip. */
+const INDEX_TILE_ZOOM = 11
+const TILE_FETCH_TIMEOUT_MS = 5000
+const DEFAULT_IMPORTANCE = 3
 
-export function normalize(s: string): string {
-  return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim()
+function normalize(s: string): string {
+  return s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
 }
 
-export function tileForPoint(lng: number, lat: number, z: number): { x: number; y: number } {
+function tileForPoint(lng: number, lat: number, z: number): { x: number; y: number } {
   const latR = (lat * Math.PI) / 180
   const x = Math.floor(((lng + 180) / 360) * 2 ** z)
   const y = Math.floor(((1 - Math.log(Math.tan(latR) + 1 / Math.cos(latR)) / Math.PI) / 2) * 2 ** z)
   return { x, y }
+}
+
+/* Village data is attendee-editable, so coordinates can't be trusted to be
+   well-formed; a bad entry must not break selection or bounds fitting */
+function validCoords(coords: unknown): coords is [number, number] {
+  return (
+    Array.isArray(coords) &&
+    coords.length >= 2 &&
+    Number.isFinite(coords[0]) &&
+    Number.isFinite(coords[1]) &&
+    Math.abs(coords[0]) <= 180 &&
+    Math.abs(coords[1]) <= 90
+  )
+}
+
+function makeEntry(
+  category: SearchCategory,
+  displayName: string,
+  geometry: GeoJSON.Geometry | null | undefined,
+  importance: number
+): SearchEntry | undefined {
+  if (geometry?.type !== 'Point' || !validCoords(geometry.coordinates)) return undefined
+  return {
+    displayName,
+    normalized: normalize(displayName),
+    category,
+    coords: geometry.coordinates as [number, number],
+    importance,
+  }
 }
 
 interface LayerExtractor {
@@ -41,7 +79,7 @@ interface LayerExtractor {
   importance: (props: Record<string, unknown>) => number
 }
 
-const constImportance = () => 3
+const constImportance = () => DEFAULT_IMPORTANCE
 
 // Display names and exclusions mirror the label layers in style/emf.ts
 const extractors: LayerExtractor[] = [
@@ -88,43 +126,22 @@ const extractors: LayerExtractor[] = [
   },
 ]
 
-function entryFromPoint(
-  extractor: LayerExtractor,
-  props: Record<string, unknown>,
-  geometry: GeoJSON.Geometry
-): SearchEntry | undefined {
-  if (geometry.type !== 'Point') return undefined
-  const displayName = extractor.displayName(props)
-  if (!displayName) return undefined
-  return {
-    displayName,
-    normalized: normalize(displayName),
-    category: extractor.category,
-    coords: geometry.coordinates as [number, number],
-    importance: extractor.importance(props),
-  }
-}
-
-function sitePlanTileURL(map: maplibregl.Map): string | undefined {
-  const source = map.getStyle().sources['site_plan']
-  if (!source || source.type !== 'vector' || !source.tiles?.length) return undefined
-  const [lng, lat] = center
-  const { x, y } = tileForPoint(lng, lat, INDEX_TILE_ZOOM)
-  return source.tiles[0]
-    .replace('{z}', String(INDEX_TILE_ZOOM))
-    .replace('{x}', String(x))
-    .replace('{y}', String(y))
-}
-
 async function sitePlanEntries(map: maplibregl.Map): Promise<{ entries: SearchEntry[]; offline: boolean }> {
-  const url = sitePlanTileURL(map)
   try {
-    if (!url) throw new Error('site_plan source has no tile URL')
-    const resp = await fetch(url)
-    if (!resp.ok) throw new Error(`tile fetch failed: ${resp.status}`)
-    const tile = new VectorTile(new Pbf(new Uint8Array(await resp.arrayBuffer())))
+    const source = map.getStyle().sources['site_plan']
+    if (!source || source.type !== 'vector' || !source.tiles?.length) {
+      throw new Error('site_plan source has no tile URL')
+    }
     const [lng, lat] = center
     const { x, y } = tileForPoint(lng, lat, INDEX_TILE_ZOOM)
+    const url = source.tiles[0]
+      .replace('{z}', String(INDEX_TILE_ZOOM))
+      .replace('{x}', String(x))
+      .replace('{y}', String(y))
+
+    const resp = await fetch(url, { signal: AbortSignal.timeout(TILE_FETCH_TIMEOUT_MS) })
+    if (!resp.ok) throw new Error(`tile fetch failed: ${resp.status}`)
+    const tile = new VectorTile(new Pbf(new Uint8Array(await resp.arrayBuffer())))
 
     const entries: SearchEntry[] = []
     for (const extractor of extractors) {
@@ -135,8 +152,15 @@ async function sitePlanEntries(map: maplibregl.Map): Promise<{ entries: SearchEn
       }
       for (let i = 0; i < layer.length; i++) {
         const feature = layer.feature(i)
-        const geojson = feature.toGeoJSON(x, y, INDEX_TILE_ZOOM)
-        const entry = entryFromPoint(extractor, feature.properties, geojson.geometry)
+        const displayName = extractor.displayName(feature.properties)
+        if (!displayName) continue
+        const geometry = feature.toGeoJSON(x, y, INDEX_TILE_ZOOM).geometry
+        const entry = makeEntry(
+          extractor.category,
+          displayName,
+          geometry,
+          extractor.importance(feature.properties)
+        )
         if (entry) entries.push(entry)
       }
     }
@@ -153,7 +177,14 @@ function viewportEntries(map: maplibregl.Map): SearchEntry[] {
   const seen = new Set<string>()
   for (const extractor of extractors) {
     for (const feature of map.querySourceFeatures('site_plan', { sourceLayer: extractor.sourceLayer })) {
-      const entry = entryFromPoint(extractor, feature.properties, feature.geometry)
+      const displayName = extractor.displayName(feature.properties)
+      if (!displayName) continue
+      const entry = makeEntry(
+        extractor.category,
+        displayName,
+        feature.geometry,
+        extractor.importance(feature.properties)
+      )
       if (!entry) continue
       const key = extractor.category + ':' + entry.normalized
       if (seen.has(key)) continue
@@ -169,18 +200,13 @@ async function villageEntries(map: maplibregl.Map): Promise<SearchEntry[]> {
     const source = map.getSource('villages') as GeoJSONSource | undefined
     if (!source) return []
     const data = await source.getData()
-    if (data.type !== 'FeatureCollection') return []
+    if (data.type !== 'FeatureCollection' || !Array.isArray(data.features)) return []
     const entries: SearchEntry[] = []
     for (const feature of data.features) {
       const name = feature.properties?.name
-      if (!name || feature.geometry.type !== 'Point') continue
-      entries.push({
-        displayName: String(name),
-        normalized: normalize(String(name)),
-        category: 'village',
-        coords: feature.geometry.coordinates as [number, number],
-        importance: 3,
-      })
+      if (!name) continue
+      const entry = makeEntry('village', String(name), feature.geometry, DEFAULT_IMPORTANCE)
+      if (entry) entries.push(entry)
     }
     return entries
   } catch (e) {
@@ -189,19 +215,25 @@ async function villageEntries(map: maplibregl.Map): Promise<SearchEntry[]> {
   }
 }
 
-export async function buildIndex(map: maplibregl.Map): Promise<SearchIndex> {
+export async function buildIndex(map: maplibregl.Map, onUpdate?: () => void): Promise<SearchIndex> {
+  // Start both loads concurrently, but never block on villages: getData()
+  // does not settle while the villages source is unreachable, so they merge
+  // in whenever they arrive and onUpdate lets the UI refresh
+  const villagesPromise = villageEntries(map)
   const sitePlan = await sitePlanEntries(map)
   const index: SearchIndex = { entries: sitePlan.entries, offline: sitePlan.offline }
-  // Merge villages in whenever they arrive: getData() never settles while the
-  // villages source is unreachable, so the main index must not wait for it
-  villageEntries(map).then((villages) => index.entries.push(...villages))
+  villagesPromise.then((villages) => {
+    if (villages.length === 0) return
+    for (const village of villages) index.entries.push(village)
+    onUpdate?.()
+  })
   return index
 }
 
 function score(entry: SearchEntry, query: string): number {
   if (entry.normalized === query) return 4
   if (entry.normalized.startsWith(query)) return 3
-  if (entry.normalized.split(/[^a-z0-9]+/).some((word) => word.startsWith(query))) return 2
+  if (entry.normalized.split(/[^\p{L}\p{N}]+/u).some((word) => word.startsWith(query))) return 2
   if (entry.normalized.includes(query)) return 1
   return 0
 }

@@ -3,6 +3,8 @@ import { LayerSpecificationWithZIndex } from './types'
 
 const backgroundColour = '#DBE8A5'
 const waterColour = '#2EADD9'
+// EMF theme pink — matches the PWA theme_color and the search control accent
+const searchHighlightColour = '#FB48C4'
 
 const campingColours = {
   camping: '#AFC944',
@@ -1164,9 +1166,9 @@ export const layers: LayerSpecificationWithZIndex[] = [
     source: 'search_results',
     paint: {
       'circle-radius': ['interpolate', ['linear'], ['zoom'], 14, 12, 19, 26],
-      'circle-color': '#FB48C4',
+      'circle-color': searchHighlightColour,
       'circle-opacity': 0.25,
-      'circle-stroke-color': '#FB48C4',
+      'circle-stroke-color': searchHighlightColour,
       'circle-stroke-width': 3,
       'circle-stroke-opacity': 0.9,
     },

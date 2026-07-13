@@ -11,6 +11,10 @@ const categoryZoom: Record<SearchCategory, number> = {
   parking: 16.5,
 }
 
+/* Zoom cap when fitting all results at once; matches the widest per-category
+   zoom in categoryZoom so co-located matches don't over-zoom */
+const MULTI_RESULT_MAX_ZOOM = 17.5
+
 const categoryLabel: Record<SearchCategory, string> = {
   structure: 'venue',
   area: 'area',
@@ -32,6 +36,7 @@ class SearchControl implements maplibregl.IControl {
   _resultsList: HTMLElement
   _indexPromise?: Promise<void>
   _index?: SearchIndex
+  _indexError: boolean = false
   _searchFn?: typeof import('./searchindex.ts').search
   _results: SearchEntry[] = []
   _activeIndex: number = -1
@@ -40,6 +45,7 @@ class SearchControl implements maplibregl.IControl {
     this._toggleButton = el('button.search-toggle', {
       type: 'button',
       'aria-label': 'Search venues',
+      'aria-expanded': 'false',
       title: 'Search venues',
     }) as HTMLButtonElement
     this._input = el('input.search-input', {
@@ -51,6 +57,7 @@ class SearchControl implements maplibregl.IControl {
       spellcheck: 'false',
       role: 'combobox',
       'aria-expanded': 'false',
+      'aria-autocomplete': 'list',
       'aria-controls': 'search-results-list',
     }) as HTMLInputElement
     this._clearButton = el('button.search-clear', {
@@ -69,21 +76,32 @@ class SearchControl implements maplibregl.IControl {
       this._toggleButton,
       this._panel
     )
-  }
 
-  onAdd(map: maplibregl.Map) {
-    this._map = map
-
+    // Listeners live on our own elements and are attached once here, so the
+    // control survives addControl/removeControl/addControl without doubling
     this._toggleButton.addEventListener('click', () => this._toggle())
     this._clearButton.addEventListener('click', () => {
       this._clear()
       this._input.focus()
     })
     this._input.addEventListener('input', () => this._renderResults())
-    this._input.addEventListener('keydown', (e) => this._onKeyDown(e))
-    this._input.addEventListener('blur', () => this._hideResults())
+    this._input.addEventListener('focus', () => this._renderResults())
+    this._input.addEventListener('keydown', (e) => this._onInputKeyDown(e))
+    // Escape works from anywhere in the expanded bar, not just the input
+    this._container.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') this._onEscape(e)
+    })
+    // Close the dropdown only when focus leaves the whole widget, so tabbing
+    // between the input and the clear button doesn't dismiss results
+    this._container.addEventListener('focusout', (e) => {
+      if (!this._container.contains(e.relatedTarget as Node)) this._hideResults()
+    })
     // Prevent result taps from blurring the input before their click handler runs
     this._resultsList.addEventListener('mousedown', (e) => e.preventDefault())
+  }
+
+  onAdd(map: maplibregl.Map) {
+    this._map = map
 
     // Hoist above the navigation (+/-) controls, which are added before this one.
     // The container isn't attached to the corner element until onAdd returns.
@@ -94,6 +112,7 @@ class SearchControl implements maplibregl.IControl {
 
   onRemove() {
     this._setHighlights([])
+    this._collapse()
     this._container.parentNode?.removeChild(this._container)
     this._map = undefined
   }
@@ -108,6 +127,9 @@ class SearchControl implements maplibregl.IControl {
 
   _expand() {
     this._container.classList.add('expanded')
+    this._toggleButton.setAttribute('aria-expanded', 'true')
+    this._toggleButton.setAttribute('aria-label', 'Close search')
+    this._toggleButton.title = 'Close search'
     this._input.focus()
     this._ensureIndex()
     this._renderResults()
@@ -115,15 +137,33 @@ class SearchControl implements maplibregl.IControl {
 
   _collapse() {
     this._container.classList.remove('expanded')
+    this._toggleButton.setAttribute('aria-expanded', 'false')
+    this._toggleButton.setAttribute('aria-label', 'Search venues')
+    this._toggleButton.title = 'Search venues'
     this._input.blur()
   }
 
   _ensureIndex() {
-    this._indexPromise ??= import('./searchindex.ts').then(async (module) => {
-      this._searchFn = module.search
-      this._index = await module.buildIndex(this._map!)
-      this._renderResults()
-    })
+    const map = this._map
+    if (!map) return
+    this._indexPromise ??= import('./searchindex.ts')
+      .then(async (module) => {
+        this._searchFn = module.search
+        this._indexError = false
+        this._index = await module.buildIndex(map, () => {
+          // Villages can merge in after the first render
+          if (this._container.classList.contains('expanded')) this._renderResults()
+        })
+        this._renderResults()
+      })
+      .catch((e) => {
+        // Chunk load can fail (e.g. offline before the service worker has
+        // cached it); reset so the next expansion retries
+        console.warn('Search: failed to load index', e)
+        this._indexPromise = undefined
+        this._indexError = true
+        this._renderResults()
+      })
   }
 
   /* Clear query, results and highlights */
@@ -133,7 +173,20 @@ class SearchControl implements maplibregl.IControl {
     this._renderResults()
   }
 
-  _onKeyDown(e: KeyboardEvent) {
+  _onEscape(e: KeyboardEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (this._input.value) {
+      this._clear()
+      this._input.focus()
+    } else {
+      this._setHighlights([])
+      this._collapse()
+      this._toggleButton.focus()
+    }
+  }
+
+  _onInputKeyDown(e: KeyboardEvent) {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault()
       if (this._results.length === 0) return
@@ -149,16 +202,6 @@ class SearchControl implements maplibregl.IControl {
       } else if (this._results.length > 1) {
         this._selectAll()
       }
-    } else if (e.key === 'Escape') {
-      e.preventDefault()
-      e.stopPropagation()
-      if (this._input.value) {
-        this._clear()
-      } else {
-        this._setHighlights([])
-        this._collapse()
-        this._toggleButton.focus()
-      }
     }
   }
 
@@ -166,6 +209,7 @@ class SearchControl implements maplibregl.IControl {
     const query = this._input.value.trim()
     this._resultsList.innerHTML = ''
     this._activeIndex = -1
+    this._input.removeAttribute('aria-activedescendant')
 
     if (!query) {
       this._input.setAttribute('aria-expanded', 'false')
@@ -173,8 +217,17 @@ class SearchControl implements maplibregl.IControl {
       return
     }
 
+    if (this._indexError) {
+      mount(
+        this._resultsList,
+        el('li.search-note', { role: 'presentation' }, 'Search failed to load — close and reopen to retry')
+      )
+      this._results = []
+      return
+    }
+
     if (!this._index || !this._searchFn) {
-      mount(this._resultsList, el('li.search-note', 'Loading…'))
+      mount(this._resultsList, el('li.search-note', { role: 'presentation' }, 'Loading…'))
       this._results = []
       return
     }
@@ -183,13 +236,20 @@ class SearchControl implements maplibregl.IControl {
     this._input.setAttribute('aria-expanded', 'true')
 
     if (this._index.offline) {
-      mount(this._resultsList, el('li.search-note', 'Offline — results limited to visible area'))
+      mount(
+        this._resultsList,
+        el('li.search-note', { role: 'presentation' }, 'Offline — results limited to visible area')
+      )
     }
 
     if (this._results.length === 0) {
       mount(
         this._resultsList,
-        el('li.search-note', this._index.entries.length ? 'No results' : 'Search unavailable offline')
+        el(
+          'li.search-note',
+          { role: 'presentation' },
+          this._index.entries.length ? 'No results' : 'Search unavailable offline'
+        )
       )
       return
     }
@@ -200,6 +260,7 @@ class SearchControl implements maplibregl.IControl {
         {
           role: 'option',
           id: `search-result-${i}`,
+          'aria-selected': 'false',
         },
         el('span.search-result-name', entry.displayName),
         el('span.search-badge.search-badge-' + entry.category, categoryLabel[entry.category])
@@ -211,7 +272,10 @@ class SearchControl implements maplibregl.IControl {
 
   _updateActiveRow() {
     const rows = this._resultsList.querySelectorAll('.search-result')
-    rows.forEach((row, i) => row.classList.toggle('active', i === this._activeIndex))
+    rows.forEach((row, i) => {
+      row.classList.toggle('active', i === this._activeIndex)
+      row.setAttribute('aria-selected', String(i === this._activeIndex))
+    })
     if (this._activeIndex >= 0) {
       this._input.setAttribute('aria-activedescendant', `search-result-${this._activeIndex}`)
       rows[this._activeIndex]?.scrollIntoView({ block: 'nearest' })
@@ -225,6 +289,7 @@ class SearchControl implements maplibregl.IControl {
     this._resultsList.innerHTML = ''
     this._activeIndex = -1
     this._input.setAttribute('aria-expanded', 'false')
+    this._input.removeAttribute('aria-activedescendant')
   }
 
   _select(entry: SearchEntry) {
@@ -242,7 +307,7 @@ class SearchControl implements maplibregl.IControl {
     )
     this._map?.fitBounds(bounds, {
       padding: { top: 90, bottom: 50, left: 50, right: 50 },
-      maxZoom: 17.5,
+      maxZoom: MULTI_RESULT_MAX_ZOOM,
     })
     this._afterSelection()
   }
