@@ -75,7 +75,9 @@
   font-family: inherit;
 }
 
-.search-clear {
+/* Scoped under .maplibregl-ctrl-group to out-rank maplibre's 29px button rule,
+   keeping the 36px touch target */
+.maplibregl-ctrl-group button.search-clear {
   flex: 0 0 auto;
   width: 36px;
   height: 36px;
