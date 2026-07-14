@@ -1,6 +1,8 @@
 import { el, mount } from 'redom'
 import maplibregl, { GeoJSONSource, LngLatBounds } from 'maplibre-gl'
 import type { SearchCategory, SearchEntry, SearchIndex } from './searchindex.ts'
+import { slugify, isVenueSlug, VENUE_MOVE } from '../venueurlhash.ts'
+import type VenueURLHash from '../venueurlhash.ts'
 
 const categoryZoom: Record<SearchCategory, number> = {
   structure: 18,
@@ -38,10 +40,14 @@ class SearchControl implements maplibregl.IControl {
   _index?: SearchIndex
   _indexError: boolean = false
   _searchFn?: typeof import('./searchindex.ts').search
+  _resolveFn?: typeof import('./searchindex.ts').resolveSlug
   _results: SearchEntry[] = []
   _activeIndex: number = -1
+  _urlHash?: VenueURLHash
+  _pendingSlug: string | null = null
 
-  constructor() {
+  constructor(urlHash?: VenueURLHash) {
+    this._urlHash = urlHash
     this._toggleButton = el('button.search-toggle', {
       type: 'button',
       'aria-label': 'Search venues',
@@ -84,7 +90,14 @@ class SearchControl implements maplibregl.IControl {
       this._clear()
       this._input.focus()
     })
-    this._input.addEventListener('input', () => this._renderResults())
+    this._input.addEventListener('input', () => {
+      // Typing takes over from any in-flight URL slug resolution
+      if (this._pendingSlug) {
+        this._pendingSlug = null
+        this._urlHash?.setVenueSlug(null)
+      }
+      this._renderResults()
+    })
     this._input.addEventListener('focus', () => this._renderResults())
     this._input.addEventListener('keydown', (e) => this._onInputKeyDown(e))
     // Escape works from anywhere in the expanded bar, not just the input
@@ -112,12 +125,28 @@ class SearchControl implements maplibregl.IControl {
     // The container isn't attached to the corner element until onAdd returns.
     queueMicrotask(() => this._container.parentElement?.prepend(this._container))
 
+    if (this._urlHash) {
+      this._urlHash.onVenueSlug = (slug) => {
+        if (slug) {
+          this._resolveSlug(slug)
+        } else {
+          this._pendingSlug = null
+        }
+      }
+      // Consume a venue hash the page loaded with, stashed before onAdd ran
+      if (this._urlHash.venueSlug) {
+        this._resolveSlug(this._urlHash.venueSlug)
+      }
+    }
+
     return this._container
   }
 
   onRemove() {
     this._setHighlights([])
     this._collapse()
+    if (this._urlHash) this._urlHash.onVenueSlug = undefined
+    this._pendingSlug = null
     this._container.parentNode?.removeChild(this._container)
     this._map = undefined
   }
@@ -154,10 +183,12 @@ class SearchControl implements maplibregl.IControl {
     this._indexPromise ??= import('./searchindex.ts')
       .then(async (module) => {
         this._searchFn = module.search
+        this._resolveFn = module.resolveSlug
         this._indexError = false
         this._index = await module.buildIndex(map, () => {
-          // Villages can merge in after the first render
+          // Fires when villages merge in, which also makes the index final
           if (this._container.classList.contains('expanded')) this._renderResults()
+          if (this._pendingSlug) this._attemptSlugResolution(true)
         })
         this._renderResults()
       })
@@ -171,10 +202,49 @@ class SearchControl implements maplibregl.IControl {
       })
   }
 
+  /* Resolve a venue slug from the URL hash against the search index */
+  async _resolveSlug(slug: string) {
+    this._pendingSlug = slug
+    this._ensureIndex()
+    await this._indexPromise
+    if (this._indexError) {
+      console.warn(`Search: cannot resolve #${slug} — index unavailable`)
+      this._pendingSlug = null
+      return
+    }
+    this._attemptSlugResolution()
+  }
+
+  _attemptSlugResolution(indexFinal: boolean = false) {
+    const slug = this._pendingSlug
+    if (!slug || !this._index || !this._resolveFn) return
+    // A user gesture during the async gap may have cleared the slug
+    if (this._urlHash?.venueSlug !== slug) {
+      this._pendingSlug = null
+      return
+    }
+    const entries = this._resolveFn(this._index.entries, slug)
+    if (entries.length === 0) {
+      // Kept pending until the index is final: villages may still resolve it
+      console.warn(`Search: no venue matches #${slug}`)
+      if (indexFinal) {
+        this._pendingSlug = null
+        this._urlHash?.setVenueSlug(null)
+      }
+      return
+    }
+    this._pendingSlug = null
+    if (entries.length === 1) {
+      this._input.value = entries[0].displayName
+    }
+    this._focusEntries(entries)
+  }
+
   /* Clear query, results and highlights */
   _clear() {
     this._input.value = ''
     this._setHighlights([])
+    this._urlHash?.setVenueSlug(null)
     this._renderResults()
   }
 
@@ -186,6 +256,7 @@ class SearchControl implements maplibregl.IControl {
       this._input.focus()
     } else {
       this._setHighlights([])
+      this._urlHash?.setVenueSlug(null)
       this._collapse()
       this._toggleButton.focus()
     }
@@ -301,23 +372,48 @@ class SearchControl implements maplibregl.IControl {
     this._input.removeAttribute('aria-activedescendant')
   }
 
+  /* Highlight entries and move the camera: one entry flies in close, several
+     are framed together. Shared by search selection and URL slug resolution. */
+  _focusEntries(entries: SearchEntry[]) {
+    this._setHighlights(entries)
+    // VENUE_MOVE stops VenueURLHash treating these moves as navigating away
+    if (entries.length === 1) {
+      const entry = entries[0]
+      this._map?.flyTo({ center: entry.coords, zoom: categoryZoom[entry.category] }, VENUE_MOVE)
+    } else {
+      const bounds = entries.reduce(
+        (b, entry) => b.extend(entry.coords),
+        new LngLatBounds(entries[0].coords, entries[0].coords)
+      )
+      this._map?.fitBounds(
+        bounds,
+        {
+          padding: { top: 90, bottom: 50, left: 50, right: 50 },
+          maxZoom: MULTI_RESULT_MAX_ZOOM,
+        },
+        VENUE_MOVE
+      )
+    }
+  }
+
   _select(entry: SearchEntry) {
-    this._setHighlights([entry])
-    this._map?.flyTo({ center: entry.coords, zoom: categoryZoom[entry.category] })
+    this._urlHash?.setVenueSlug(entry.slug)
+    this._focusEntries([entry])
     this._afterSelection()
   }
 
   _selectAll() {
-    const results = this._results
-    this._setHighlights(results)
-    const bounds = results.reduce(
-      (b, entry) => b.extend(entry.coords),
-      new LngLatBounds(results[0].coords, results[0].coords)
-    )
-    this._map?.fitBounds(bounds, {
-      padding: { top: 90, bottom: 50, left: 50, right: 50 },
-      maxZoom: MULTI_RESULT_MAX_ZOOM,
-    })
+    if (this._urlHash) {
+      // Only mint a slug that resolves to exactly what search() framed, so a
+      // link recipient sees what the sharer saw (search is fuzzier than slugs)
+      const slug = slugify(this._input.value.trim())
+      const resolved =
+        isVenueSlug(slug) && this._index && this._resolveFn ? this._resolveFn(this._index.entries, slug) : []
+      const roundTrips =
+        resolved.length === this._results.length && resolved.every((entry) => this._results.includes(entry))
+      this._urlHash.setVenueSlug(roundTrips && resolved.length > 0 ? slug : null)
+    }
+    this._focusEntries(this._results)
     this._afterSelection()
   }
 

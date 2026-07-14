@@ -2,12 +2,14 @@ import { VectorTile } from '@mapbox/vector-tile'
 import Pbf from 'pbf'
 import maplibregl, { GeoJSONSource } from 'maplibre-gl'
 import { center } from '../style/map_style.ts'
+import { fold, slugify } from '../venueurlhash.ts'
 
 export type SearchCategory = 'structure' | 'area' | 'camping' | 'parking' | 'gate' | 'village'
 
 export interface SearchEntry {
   displayName: string
   normalized: string
+  slug: string
   category: SearchCategory
   coords: [number, number]
   importance: number
@@ -29,11 +31,7 @@ const TILE_FETCH_TIMEOUT_MS = 5000
 const DEFAULT_IMPORTANCE = 3
 
 function normalize(s: string): string {
-  return s
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim()
+  return fold(s).trim()
 }
 
 function tileForPoint(lng: number, lat: number, z: number): { x: number; y: number } {
@@ -66,10 +64,23 @@ function makeEntry(
   return {
     displayName,
     normalized: normalize(displayName),
+    slug: slugify(displayName),
     category,
     coords: geometry.coordinates as [number, number],
     importance,
   }
+}
+
+/* Resolve a URL venue slug, most-specific tier first: exact, then prefix,
+   then containment — always at hyphen boundaries, so #parking matches every
+   "Parking: …", #robot-arms matches "The Robot Arms", and #stage can never
+   match "Backstage". Deliberately not fuzzy: slugs should be guessable. */
+export function resolveSlug(entries: SearchEntry[], slug: string): SearchEntry[] {
+  const exact = entries.filter((entry) => entry.slug === slug)
+  if (exact.length > 0) return exact
+  const prefixed = entries.filter((entry) => entry.slug.startsWith(slug + '-'))
+  if (prefixed.length > 0) return prefixed
+  return entries.filter((entry) => entry.slug.includes('-' + slug + '-') || entry.slug.endsWith('-' + slug))
 }
 
 interface LayerExtractor {
@@ -216,14 +227,13 @@ async function villageEntries(map: maplibregl.Map): Promise<SearchEntry[]> {
 }
 
 export async function buildIndex(map: maplibregl.Map, onUpdate?: () => void): Promise<SearchIndex> {
-  // Start both loads concurrently, but never block on villages: getData()
-  // does not settle while the villages source is unreachable, so they merge
-  // in whenever they arrive and onUpdate lets the UI refresh
+  // Never block on villages: getData() doesn't settle while their source is
+  // unreachable. They merge in whenever they arrive; onUpdate fires even when
+  // empty, doubling as the "index is final" signal.
   const villagesPromise = villageEntries(map)
   const sitePlan = await sitePlanEntries(map)
   const index: SearchIndex = { entries: sitePlan.entries, offline: sitePlan.offline }
   villagesPromise.then((villages) => {
-    if (villages.length === 0) return
     for (const village of villages) index.entries.push(village)
     onUpdate?.()
   })
