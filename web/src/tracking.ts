@@ -1,6 +1,8 @@
 import maplibregl from 'maplibre-gl'
 import type { Feature, FeatureCollection, Position } from 'geojson'
 import { el, mount } from 'redom'
+import { makeEntry, validCoords } from './search/searchentry.ts'
+import type { SearchCategory, SearchEntry } from './search/searchentry.ts'
 import './tracking.css'
 
 const TRACKING_HOST = import.meta.env.DEV ? 'http://localhost:3000' : 'https://emf.eventwan.net'
@@ -21,12 +23,17 @@ interface TrackingLayer {
   layer: string
   source: string
   snapshot: string
+  category: SearchCategory
   id: (props: Record<string, any>) => string | undefined
+  name: (props: Record<string, any>) => string | undefined
   popup: (props: Record<string, any>) => HTMLElement
   features: Map<string, Feature>
   moves: Map<string, Move>
   frame?: number
 }
+
+// Only breaks ties; a tracker sorts just below a venue on an equal text score
+const TRACKED_IMPORTANCE = 1
 
 const relativeTime = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
 
@@ -53,12 +60,26 @@ function refreshTimes(content: HTMLElement) {
   })
 }
 
-function vehiclePopup(props: Record<string, any>) {
-  const vehicleName = props.vehicleType
-    ? `${props.vehicleType}${props.registration ? ` (${props.registration})` : ''}`
-    : `Tracker ${props.deviceName}`
+// Display names shared by the popups and search, so a tracker reads the same in
+// both. Return undefined when there's no usable name, so search can skip it.
+function vehicleName(props: Record<string, any>): string | undefined {
+  if (props.vehicleType) {
+    return `${props.vehicleType}${props.registration ? ` (${props.registration})` : ''}`
+  }
+  return props.deviceName != null ? `Tracker ${props.deviceName}` : undefined
+}
 
-  const content = el('.tracking-popup', el('h3', vehicleName))
+function busName(props: Record<string, any>): string | undefined {
+  return props.name != null ? String(props.name) : undefined
+}
+
+function personName(props: Record<string, any>): string | undefined {
+  const name = props.name ?? props.deviceName
+  return name != null ? String(name) : undefined
+}
+
+function vehiclePopup(props: Record<string, any>) {
+  const content = el('.tracking-popup', el('h3', vehicleName(props) ?? ''))
   if (props.vehicleType != null) {
     mount(content, el('p', `Tracker ${props.deviceName}`))
   }
@@ -74,7 +95,7 @@ function vehiclePopup(props: Record<string, any>) {
 }
 
 function busPopup(props: Record<string, any>) {
-  const content = el('.tracking-popup', el('h3', props.name))
+  const content = el('.tracking-popup', el('h3', busName(props) ?? ''))
   if (props.address != null) {
     mount(content, el('p', props.address))
   }
@@ -91,7 +112,7 @@ function busPopup(props: Record<string, any>) {
 }
 
 function peoplePopup(props: Record<string, any>) {
-  const content = el('.tracking-popup', el('h3', props.name ?? props.deviceName))
+  const content = el('.tracking-popup', el('h3', personName(props) ?? ''))
   if (props.battery != null) {
     mount(content, el('p', `Battery ${props.battery}%`))
   }
@@ -109,7 +130,9 @@ const trackingLayers: TrackingLayer[] = [
     layer: 'vehicles_symbol',
     source: 'vehicles',
     snapshot: 'vehicles.geojson',
+    category: 'vehicle',
     id: (props) => props.devEui,
+    name: vehicleName,
     popup: vehiclePopup,
     features: new Map(),
     moves: new Map(),
@@ -119,7 +142,9 @@ const trackingLayers: TrackingLayer[] = [
     layer: 'bus_symbol',
     source: 'bus',
     snapshot: 'bus.geojson',
+    category: 'bus',
     id: (props) => props.assetId?.toString(),
+    name: busName,
     popup: busPopup,
     features: new Map(),
     moves: new Map(),
@@ -129,7 +154,9 @@ const trackingLayers: TrackingLayer[] = [
     layer: 'people_symbol',
     source: 'people',
     snapshot: 'people.geojson',
+    category: 'person',
     id: (props) => props.devEui,
+    name: personName,
     popup: peoplePopup,
     features: new Map(),
     moves: new Map(),
@@ -157,6 +184,19 @@ function moving(layer: TrackingLayer, id: string, now: number): Position | undef
   return [move.from[0] + (move.to[0] - move.from[0]) * p, move.from[1] + (move.to[1] - move.from[1]) * p]
 }
 
+// Fired after every render so a search highlight can follow a moving entity.
+// render() only runs when things change, so an idle subscriber costs nothing.
+const updateListeners = new Set<() => void>()
+
+export function subscribeTrackingUpdates(listener: () => void): () => void {
+  updateListeners.add(listener)
+  return () => updateListeners.delete(listener)
+}
+
+function notifyUpdate() {
+  for (const listener of updateListeners) listener()
+}
+
 function render(map: maplibregl.Map, layer: TrackingLayer) {
   for (const [id, feature] of layer.features) {
     if (!fresh(feature)) {
@@ -177,6 +217,7 @@ function render(map: maplibregl.Map, layer: TrackingLayer) {
     }),
   }
   source.setData(collection)
+  notifyUpdate()
 
   if (layer.frame != null) cancelAnimationFrame(layer.frame)
   layer.frame = layer.moves.size
@@ -221,6 +262,38 @@ let streamTypes = ''
 function visible(map: maplibregl.Map, layer: TrackingLayer): boolean {
   if (!map.getLayer(layer.layer)) return false
   return map.getLayoutProperty(layer.layer, 'visibility') !== 'none'
+}
+
+// Search entries for enabled tracking layers, rebuilt each query so positions
+// and the enabled set stay current. Skips stale and unnamed features.
+export function trackingSearchEntries(map: maplibregl.Map): SearchEntry[] {
+  const entries: SearchEntry[] = []
+  for (const layer of trackingLayers) {
+    if (!visible(map, layer)) continue
+    for (const [id, feature] of layer.features) {
+      if (!fresh(feature)) continue
+      const displayName = layer.name(feature.properties ?? {})
+      if (!displayName) continue
+      const entry = makeEntry(layer.category, displayName, feature.geometry, TRACKED_IMPORTANCE, {
+        type: layer.type,
+        id,
+      })
+      if (entry) entries.push(entry)
+    }
+  }
+  return entries
+}
+
+/* Current interpolated position of a tracked feature, or undefined once it has
+   gone stale or dropped out, so a following highlight can drop it too. */
+export function trackingPosition(type: string, id: string): [number, number] | undefined {
+  const layer = trackingLayers.find((l) => l.type === type)
+  if (!layer) return undefined
+  const feature = layer.features.get(id)
+  if (!feature || !fresh(feature) || feature.geometry.type !== 'Point') return undefined
+  const now = performance.now()
+  const coords = moving(layer, id, now) ?? feature.geometry.coordinates
+  return validCoords(coords) ? [coords[0], coords[1]] : undefined
 }
 
 function disconnect() {

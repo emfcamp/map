@@ -1,6 +1,8 @@
 import { el, mount } from 'redom'
 import maplibregl, { GeoJSONSource, LngLatBounds } from 'maplibre-gl'
-import type { SearchCategory, SearchEntry, SearchIndex } from './searchindex.ts'
+import type { SearchIndex } from './searchindex.ts'
+import type { SearchCategory, SearchEntry } from './searchentry.ts'
+import { trackingSearchEntries, trackingPosition, subscribeTrackingUpdates } from '../tracking.ts'
 
 const categoryZoom: Record<SearchCategory, number> = {
   structure: 18,
@@ -9,6 +11,9 @@ const categoryZoom: Record<SearchCategory, number> = {
   area: 17,
   camping: 16.5,
   parking: 16.5,
+  vehicle: 18,
+  bus: 17.5,
+  person: 18,
 }
 
 /* Zoom cap when fitting all results at once; matches the widest per-category
@@ -22,9 +27,10 @@ const categoryLabel: Record<SearchCategory, string> = {
   parking: 'parking',
   gate: 'gate',
   village: 'village',
+  vehicle: 'vehicle',
+  bus: 'bus',
+  person: 'person',
 }
-
-const emptyCollection: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
 
 class SearchControl implements maplibregl.IControl {
   _map?: maplibregl.Map
@@ -40,6 +46,8 @@ class SearchControl implements maplibregl.IControl {
   _searchFn?: typeof import('./searchindex.ts').search
   _results: SearchEntry[] = []
   _activeIndex: number = -1
+  _highlighted: SearchEntry[] = []
+  _unsubscribeTracking?: () => void
 
   constructor() {
     this._toggleButton = el('button.search-toggle', {
@@ -241,7 +249,10 @@ class SearchControl implements maplibregl.IControl {
       return
     }
 
-    this._results = this._searchFn(this._index.entries, query)
+    // Live tracked entities are merged in per query so their positions and
+    // enabled state are current; only enabled layers contribute entries
+    const trackingEntries = this._map ? trackingSearchEntries(this._map) : []
+    this._results = this._searchFn([...this._index.entries, ...trackingEntries], query)
     this._input.setAttribute('aria-expanded', 'true')
 
     if (this._index.offline) {
@@ -301,18 +312,24 @@ class SearchControl implements maplibregl.IControl {
     this._input.removeAttribute('aria-activedescendant')
   }
 
+  // Live position of a tracked entry, falling back to its query-time coords
+  _liveCoords(entry: SearchEntry): [number, number] {
+    return (entry.tracked && trackingPosition(entry.tracked.type, entry.tracked.id)) || entry.coords
+  }
+
   _select(entry: SearchEntry) {
     this._setHighlights([entry])
-    this._map?.flyTo({ center: entry.coords, zoom: categoryZoom[entry.category] })
+    this._map?.flyTo({ center: this._liveCoords(entry), zoom: categoryZoom[entry.category] })
     this._afterSelection()
   }
 
   _selectAll() {
     const results = this._results
     this._setHighlights(results)
+    const first = this._liveCoords(results[0])
     const bounds = results.reduce(
-      (b, entry) => b.extend(entry.coords),
-      new LngLatBounds(results[0].coords, results[0].coords)
+      (b, entry) => b.extend(this._liveCoords(entry)),
+      new LngLatBounds(first, first)
     )
     this._map?.fitBounds(bounds, {
       padding: { top: 90, bottom: 50, left: 50, right: 50 },
@@ -328,22 +345,46 @@ class SearchControl implements maplibregl.IControl {
   }
 
   _setHighlights(entries: SearchEntry[]) {
+    this._highlighted = entries
+    this._syncFollow()
+    this._renderHighlights()
+  }
+
+  // Follow live entities while one is highlighted, so the halo tracks them;
+  // drop the subscription once nothing tracked is left
+  _syncFollow() {
+    const following = this._highlighted.some((entry) => entry.tracked)
+    if (following && !this._unsubscribeTracking) {
+      this._unsubscribeTracking = subscribeTrackingUpdates(() => this._renderHighlights())
+    } else if (!following && this._unsubscribeTracking) {
+      this._unsubscribeTracking()
+      this._unsubscribeTracking = undefined
+    }
+  }
+
+  // Rebuild the halo from live positions; a tracked entity that expired or whose
+  // layer was turned off resolves to no coords, drops out and stops the follow
+  _renderHighlights() {
     const source = this._map?.getSource('search_results') as GeoJSONSource | undefined
     if (!source) return
-    if (entries.length === 0) {
-      source.setData(emptyCollection)
-      this._toggleButton.classList.remove('active')
-      return
-    }
-    source.setData({
-      type: 'FeatureCollection',
-      features: entries.map((entry) => ({
+    const features: GeoJSON.Feature[] = []
+    const live: SearchEntry[] = []
+    for (const entry of this._highlighted) {
+      const coords = entry.tracked ? trackingPosition(entry.tracked.type, entry.tracked.id) : entry.coords
+      if (!coords) continue
+      live.push(entry)
+      features.push({
         type: 'Feature',
-        geometry: { type: 'Point', coordinates: entry.coords },
+        geometry: { type: 'Point', coordinates: coords },
         properties: { name: entry.displayName, category: entry.category },
-      })),
-    })
-    this._toggleButton.classList.add('active')
+      })
+    }
+    if (live.length < this._highlighted.length) {
+      this._highlighted = live
+      this._syncFollow()
+    }
+    source.setData({ type: 'FeatureCollection', features })
+    this._toggleButton.classList.toggle('active', features.length > 0)
   }
 }
 

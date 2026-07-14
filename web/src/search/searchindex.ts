@@ -2,16 +2,8 @@ import { VectorTile } from '@mapbox/vector-tile'
 import Pbf from 'pbf'
 import maplibregl, { GeoJSONSource } from 'maplibre-gl'
 import { center } from '../style/map_style.ts'
-
-export type SearchCategory = 'structure' | 'area' | 'camping' | 'parking' | 'gate' | 'village'
-
-export interface SearchEntry {
-  displayName: string
-  normalized: string
-  category: SearchCategory
-  coords: [number, number]
-  importance: number
-}
+import { makeEntry, normalize } from './searchentry.ts'
+import type { SearchCategory, SearchEntry } from './searchentry.ts'
 
 export interface SearchIndex {
   entries: SearchEntry[]
@@ -28,48 +20,11 @@ const INDEX_TILE_ZOOM = 11
 const TILE_FETCH_TIMEOUT_MS = 5000
 const DEFAULT_IMPORTANCE = 3
 
-function normalize(s: string): string {
-  return s
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim()
-}
-
 function tileForPoint(lng: number, lat: number, z: number): { x: number; y: number } {
   const latR = (lat * Math.PI) / 180
   const x = Math.floor(((lng + 180) / 360) * 2 ** z)
   const y = Math.floor(((1 - Math.log(Math.tan(latR) + 1 / Math.cos(latR)) / Math.PI) / 2) * 2 ** z)
   return { x, y }
-}
-
-/* Village data is attendee-editable, so coordinates can't be trusted to be
-   well-formed; a bad entry must not break selection or bounds fitting */
-function validCoords(coords: unknown): coords is [number, number] {
-  return (
-    Array.isArray(coords) &&
-    coords.length >= 2 &&
-    Number.isFinite(coords[0]) &&
-    Number.isFinite(coords[1]) &&
-    Math.abs(coords[0]) <= 180 &&
-    Math.abs(coords[1]) <= 90
-  )
-}
-
-function makeEntry(
-  category: SearchCategory,
-  displayName: string,
-  geometry: GeoJSON.Geometry | null | undefined,
-  importance: number
-): SearchEntry | undefined {
-  if (geometry?.type !== 'Point' || !validCoords(geometry.coordinates)) return undefined
-  return {
-    displayName,
-    normalized: normalize(displayName),
-    category,
-    coords: geometry.coordinates as [number, number],
-    importance,
-  }
 }
 
 interface LayerExtractor {
