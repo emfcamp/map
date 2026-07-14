@@ -173,3 +173,15 @@
 .search-badge-village {
   background-color: #7a4bbd;
 }
+
+.search-badge-vehicle {
+  background-color: #0f766e;
+}
+
+.search-badge-bus {
+  background-color: #b21e4b;
+}
+
+.search-badge-person {
+  background-color: #4338ca;
+}

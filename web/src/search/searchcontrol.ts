@@ -1,6 +1,7 @@
 import { el, mount } from 'redom'
 import maplibregl, { GeoJSONSource, LngLatBounds } from 'maplibre-gl'
 import type { SearchCategory, SearchEntry, SearchIndex } from './searchindex.ts'
+import { trackingSearchEntries, trackingPosition, subscribeTrackingUpdates } from '../tracking.ts'
 
 const categoryZoom: Record<SearchCategory, number> = {
   structure: 18,
@@ -9,6 +10,9 @@ const categoryZoom: Record<SearchCategory, number> = {
   area: 17,
   camping: 16.5,
   parking: 16.5,
+  vehicle: 18,
+  bus: 17.5,
+  person: 18,
 }
 
 /* Zoom cap when fitting all results at once; matches the widest per-category
@@ -22,9 +26,10 @@ const categoryLabel: Record<SearchCategory, string> = {
   parking: 'parking',
   gate: 'gate',
   village: 'village',
+  vehicle: 'vehicle',
+  bus: 'bus',
+  person: 'person',
 }
-
-const emptyCollection: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
 
 class SearchControl implements maplibregl.IControl {
   _map?: maplibregl.Map
@@ -40,6 +45,8 @@ class SearchControl implements maplibregl.IControl {
   _searchFn?: typeof import('./searchindex.ts').search
   _results: SearchEntry[] = []
   _activeIndex: number = -1
+  _highlighted: SearchEntry[] = []
+  _unsubscribeTracking?: () => void
 
   constructor() {
     this._toggleButton = el('button.search-toggle', {
@@ -241,7 +248,10 @@ class SearchControl implements maplibregl.IControl {
       return
     }
 
-    this._results = this._searchFn(this._index.entries, query)
+    // Live tracked entities are merged in per query so their positions and
+    // enabled state are current; only enabled layers contribute entries
+    const trackingEntries = this._map ? trackingSearchEntries(this._map) : []
+    this._results = this._searchFn([...this._index.entries, ...trackingEntries], query)
     this._input.setAttribute('aria-expanded', 'true')
 
     if (this._index.offline) {
@@ -303,7 +313,9 @@ class SearchControl implements maplibregl.IControl {
 
   _select(entry: SearchEntry) {
     this._setHighlights([entry])
-    this._map?.flyTo({ center: entry.coords, zoom: categoryZoom[entry.category] })
+    // Tracked entities may have moved since the query; fly to where they are now
+    const center = (entry.tracked && trackingPosition(entry.tracked.type, entry.tracked.id)) || entry.coords
+    this._map?.flyTo({ center, zoom: categoryZoom[entry.category] })
     this._afterSelection()
   }
 
@@ -328,22 +340,36 @@ class SearchControl implements maplibregl.IControl {
   }
 
   _setHighlights(entries: SearchEntry[]) {
+    this._highlighted = entries
+    // Subscribe to tracking updates only while a live entity is highlighted,
+    // so its halo follows it; unsubscribe once nothing tracked remains
+    const following = entries.some((entry) => entry.tracked)
+    if (following && !this._unsubscribeTracking) {
+      this._unsubscribeTracking = subscribeTrackingUpdates(() => this._renderHighlights())
+    } else if (!following && this._unsubscribeTracking) {
+      this._unsubscribeTracking()
+      this._unsubscribeTracking = undefined
+    }
+    this._renderHighlights()
+  }
+
+  /* Rebuild the highlight source from the current highlight list, reading live
+     positions for tracked entries and dropping any that have gone away. */
+  _renderHighlights() {
     const source = this._map?.getSource('search_results') as GeoJSONSource | undefined
     if (!source) return
-    if (entries.length === 0) {
-      source.setData(emptyCollection)
-      this._toggleButton.classList.remove('active')
-      return
-    }
-    source.setData({
-      type: 'FeatureCollection',
-      features: entries.map((entry) => ({
+    const features: GeoJSON.Feature[] = []
+    for (const entry of this._highlighted) {
+      const coords = entry.tracked ? trackingPosition(entry.tracked.type, entry.tracked.id) : entry.coords
+      if (!coords) continue
+      features.push({
         type: 'Feature',
-        geometry: { type: 'Point', coordinates: entry.coords },
+        geometry: { type: 'Point', coordinates: coords },
         properties: { name: entry.displayName, category: entry.category },
-      })),
-    })
-    this._toggleButton.classList.add('active')
+      })
+    }
+    source.setData({ type: 'FeatureCollection', features })
+    this._toggleButton.classList.toggle('active', features.length > 0)
   }
 }
 
