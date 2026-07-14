@@ -1,8 +1,6 @@
-/* Dependency-free search entry types and constructors, shared by the lazily
-   loaded search index (searchindex.ts) and the eager tracking module. Keeping
-   these here means tracking.ts can build entries without statically importing
-   searchindex.ts, which would pull its heavy VectorTile/Pbf deps into the
-   initial bundle. */
+// Shared search entry types and builders. Kept dependency-free so tracking.ts
+// can build entries without dragging searchindex.ts's VectorTile/Pbf deps into
+// the initial bundle.
 
 export type SearchCategory =
   'structure' | 'area' | 'camping' | 'parking' | 'gate' | 'village' | 'vehicle' | 'bus' | 'person'

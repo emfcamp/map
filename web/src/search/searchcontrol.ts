@@ -48,8 +48,6 @@ class SearchControl implements maplibregl.IControl {
   _activeIndex: number = -1
   _highlighted: SearchEntry[] = []
   _unsubscribeTracking?: () => void
-  _followFrame?: number
-  _lastHighlightKey?: string
 
   constructor() {
     this._toggleButton = el('button.search-toggle', {
@@ -314,8 +312,7 @@ class SearchControl implements maplibregl.IControl {
     this._input.removeAttribute('aria-activedescendant')
   }
 
-  /* Where an entry is right now: tracked entities may have moved since the
-     query, so read the live position and fall back to the query-time coords. */
+  // Live position of a tracked entry, falling back to its query-time coords
   _liveCoords(entry: SearchEntry): [number, number] {
     return (entry.tracked && trackingPosition(entry.tracked.type, entry.tracked.id)) || entry.coords
   }
@@ -353,35 +350,20 @@ class SearchControl implements maplibregl.IControl {
     this._renderHighlights()
   }
 
-  /* Follow live entities only while one is highlighted: subscribe so the halo
-     tracks it, and tear the subscription down once nothing tracked remains. */
+  // Follow live entities while one is highlighted, so the halo tracks them;
+  // drop the subscription once nothing tracked is left
   _syncFollow() {
     const following = this._highlighted.some((entry) => entry.tracked)
     if (following && !this._unsubscribeTracking) {
-      // Tracking fires per layer per frame; coalesce into one render per frame
-      this._unsubscribeTracking = subscribeTrackingUpdates(() => this._scheduleHighlightRender())
+      this._unsubscribeTracking = subscribeTrackingUpdates(() => this._renderHighlights())
     } else if (!following && this._unsubscribeTracking) {
       this._unsubscribeTracking()
       this._unsubscribeTracking = undefined
-      if (this._followFrame != null) {
-        cancelAnimationFrame(this._followFrame)
-        this._followFrame = undefined
-      }
     }
   }
 
-  _scheduleHighlightRender() {
-    if (this._followFrame != null) return
-    this._followFrame = requestAnimationFrame(() => {
-      this._followFrame = undefined
-      this._renderHighlights()
-    })
-  }
-
-  /* Rebuild the highlight source from the current list, reading live positions
-     for tracked entries. Entities that have expired or whose layer was switched
-     off resolve to no coords and are pruned, which also stops the follow once
-     nothing live is left. Skips the GPU upload when nothing actually moved. */
+  // Rebuild the halo from live positions; a tracked entity that expired or whose
+  // layer was turned off resolves to no coords, drops out and stops the follow
   _renderHighlights() {
     const source = this._map?.getSource('search_results') as GeoJSONSource | undefined
     if (!source) return
@@ -401,9 +383,6 @@ class SearchControl implements maplibregl.IControl {
       this._highlighted = live
       this._syncFollow()
     }
-    const key = JSON.stringify(features)
-    if (key === this._lastHighlightKey) return
-    this._lastHighlightKey = key
     source.setData({ type: 'FeatureCollection', features })
     this._toggleButton.classList.toggle('active', features.length > 0)
   }

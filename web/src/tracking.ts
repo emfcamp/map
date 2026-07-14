@@ -32,8 +32,7 @@ interface TrackingLayer {
   frame?: number
 }
 
-/* Tracked entities sort below venues on an equal text score; the query match
-   itself dominates, so this only breaks ties. */
+// Only breaks ties; a tracker sorts just below a venue on an equal text score
 const TRACKED_IMPORTANCE = 1
 
 const relativeTime = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
@@ -61,9 +60,8 @@ function refreshTimes(content: HTMLElement) {
   })
 }
 
-/* Display names shared by the popups and the search index, so a tracked
-   entity reads the same in the results list as in its popup title. Each
-   returns undefined when it has no usable name, so it can be left out of search. */
+// Display names shared by the popups and search, so a tracker reads the same in
+// both. Return undefined when there's no usable name, so search can skip it.
 function vehicleName(props: Record<string, any>): string | undefined {
   if (props.vehicleType) {
     return `${props.vehicleType}${props.registration ? ` (${props.registration})` : ''}`
@@ -186,9 +184,8 @@ function moving(layer: TrackingLayer, id: string, now: number): Position | undef
   return [move.from[0] + (move.to[0] - move.from[0]) * p, move.from[1] + (move.to[1] - move.from[1]) * p]
 }
 
-/* Fired after every tracking render so a search highlight can follow a moving
-   entity. render() only runs while things move (per-frame), on stream updates,
-   and on the 60s sweep, so an idle subscriber costs nothing. */
+// Fired after every render so a search highlight can follow a moving entity.
+// render() only runs when things change, so an idle subscriber costs nothing.
 const updateListeners = new Set<() => void>()
 
 export function subscribeTrackingUpdates(listener: () => void): () => void {
@@ -267,9 +264,8 @@ function visible(map: maplibregl.Map, layer: TrackingLayer): boolean {
   return map.getLayoutProperty(layer.layer, 'visibility') !== 'none'
 }
 
-/* Live search entries for every enabled tracking layer, rebuilt on each query
-   so positions and the enabled set are always current. Stale features and
-   ones without a usable name are skipped. */
+// Search entries for enabled tracking layers, rebuilt each query so positions
+// and the enabled set stay current. Skips stale and unnamed features.
 export function trackingSearchEntries(map: maplibregl.Map): SearchEntry[] {
   const entries: SearchEntry[] = []
   for (const layer of trackingLayers) {
