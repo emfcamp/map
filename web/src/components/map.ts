@@ -10,6 +10,7 @@ import ContextMenu from './contextmenu.ts'
 import { roundPosition } from '../util.ts'
 import { setupPhones } from '../phones.ts'
 import { setupTracking } from '../tracking.ts'
+import { setupGrid } from '../grid.ts'
 import { loadIcons } from '../icons.ts'
 import { LngLat, LngLatLike } from 'maplibre-gl'
 
@@ -97,7 +98,7 @@ export class EMFMap extends LitElement {
   ]
 
   layer_config: (Layer | LayerGroup)[] = [
-    new Layer('g', 'Grid', 'grid_'),
+    new LayerGroup('Grid', [new Layer('g', 'Lines', 'grid_'), new Layer('R', 'References', 'gridref_')]),
     new LayerGroup('Background', [
       new Layer('b', 'Map', 'background_', 'background', true),
       new Layer('s', 'Slope', 'slope', 'background'),
@@ -227,6 +228,7 @@ export class EMFMap extends LitElement {
     loadIcons(map)
     setupPhones(map)
     setupTracking(map)
+    setupGrid(map)
 
     map.touchZoomRotate.disableRotation()
 

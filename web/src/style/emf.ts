@@ -794,6 +794,51 @@ export const layers: LayerSpecificationWithZIndex[] = [
     },
   },
   {
+    /* Column letters (A–L) just above the top edge of the grid, and row numbers
+       (1–18) just left of it (everything in `grid_labels` that isn't an in-cell
+       reference). The points are generated from the grid cells at runtime
+       (setupGrid) so the labels are geo-anchored and stay put during zoom, like
+       the in-cell references. Toggles with the "Grid > Lines" layer. */
+    id: 'grid_edge_labels',
+    type: 'symbol',
+    source: 'grid_labels',
+    minzoom: 13,
+    filter: ['!=', ['get', 'axis'], 'cell'],
+    layout: {
+      'text-field': ['get', 'label'],
+      'text-font': ['Open Sans Regular'],
+      'text-size': ['interpolate', ['linear'], ['zoom'], 14, 12, 18, 22],
+      'text-allow-overlap': true,
+      'text-ignore-placement': true,
+    },
+    paint: {
+      'text-color': '#333',
+      'text-halo-color': 'rgba(255, 255, 255, 0.9)',
+      'text-halo-width': 2,
+    },
+  },
+  {
+    /* Full grid reference (e.g. "F7") centred in every cell, from the generated
+       `grid_labels` points. Left to the collision engine (no allow-overlap) so
+       dense refs are thinned when zoomed out. Optional layer (gridref_ prefix). */
+    id: 'gridref_labels',
+    type: 'symbol',
+    source: 'grid_labels',
+    minzoom: 15,
+    filter: ['==', ['get', 'axis'], 'cell'],
+    layout: {
+      visibility: 'none',
+      'text-field': ['get', 'label'],
+      'text-font': ['Open Sans Regular'],
+      'text-size': ['interpolate', ['linear'], ['zoom'], 14, 11, 18, 18],
+    },
+    paint: {
+      'text-color': '#555',
+      'text-halo-color': 'rgba(255, 255, 255, 0.9)',
+      'text-halo-width': 2,
+    },
+  },
+  {
     id: 'villages_symbol',
     type: 'circle',
     source: 'villages',

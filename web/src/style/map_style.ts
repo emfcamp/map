@@ -70,6 +70,12 @@ const style: StyleSpecification = {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] },
     },
+    // Outer edge labels (A–L / 1–18), generated from the grid cells at runtime
+    // by setupGrid() so they sit just outside the grid and stay geo-anchored.
+    grid_labels: {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+    },
     search_results: {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] },
