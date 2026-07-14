@@ -71,12 +71,10 @@ function makeEntry(
   }
 }
 
-/* Resolve a URL venue slug to entries, most-specific tier first:
-   1. exact — duplicate names resolve together
-   2. prefix at a hyphen boundary — #parking matches every "Parking: …"
-   3. containment at hyphen boundaries — #robot-arms matches "The Robot Arms"
-   Hyphen boundaries keep it predictable: #stage never matches "Backstage".
-   Deliberately not fuzzy: URL slugs should be guessable and stable. */
+/* Resolve a URL venue slug, most-specific tier first: exact, then prefix,
+   then containment — always at hyphen boundaries, so #parking matches every
+   "Parking: …", #robot-arms matches "The Robot Arms", and #stage can never
+   match "Backstage". Deliberately not fuzzy: slugs should be guessable. */
 export function resolveSlug(entries: SearchEntry[], slug: string): SearchEntry[] {
   const exact = entries.filter((entry) => entry.slug === slug)
   if (exact.length > 0) return exact
@@ -229,15 +227,14 @@ async function villageEntries(map: maplibregl.Map): Promise<SearchEntry[]> {
 }
 
 export async function buildIndex(map: maplibregl.Map, onUpdate?: () => void): Promise<SearchIndex> {
-  // Start both loads concurrently, but never block on villages: getData()
-  // does not settle while the villages source is unreachable, so they merge
-  // in whenever they arrive and onUpdate lets the UI refresh
+  // Never block on villages: getData() doesn't settle while their source is
+  // unreachable. They merge in whenever they arrive; onUpdate fires even when
+  // empty, doubling as the "index is final" signal.
   const villagesPromise = villageEntries(map)
   const sitePlan = await sitePlanEntries(map)
   const index: SearchIndex = { entries: sitePlan.entries, offline: sitePlan.offline }
   villagesPromise.then((villages) => {
     for (const village of villages) index.entries.push(village)
-    // Fires even with no villages: it doubles as the "index is final" signal
     onUpdate?.()
   })
   return index

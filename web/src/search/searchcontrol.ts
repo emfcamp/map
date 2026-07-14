@@ -133,8 +133,7 @@ class SearchControl implements maplibregl.IControl {
           this._pendingSlug = null
         }
       }
-      // The page may have loaded with a venue hash (e.g. #stage-a), stashed
-      // by VenueURLHash before this control existed
+      // Consume a venue hash the page loaded with, stashed before onAdd ran
       if (this._urlHash.venueSlug) {
         this._resolveSlug(this._urlHash.venueSlug)
       }
@@ -187,8 +186,7 @@ class SearchControl implements maplibregl.IControl {
         this._resolveFn = module.resolveSlug
         this._indexError = false
         this._index = await module.buildIndex(map, () => {
-          // Villages can merge in after the first render; this callback also
-          // marks the index as final
+          // Fires when villages merge in, which also makes the index final
           if (this._container.classList.contains('expanded')) this._renderResults()
           if (this._pendingSlug) this._attemptSlugResolution(true)
         })
@@ -204,15 +202,12 @@ class SearchControl implements maplibregl.IControl {
       })
   }
 
-  /* Resolve a venue slug from the URL hash (page load, URL edit, history
-     navigation) against the search index */
+  /* Resolve a venue slug from the URL hash against the search index */
   async _resolveSlug(slug: string) {
     this._pendingSlug = slug
     this._ensureIndex()
     await this._indexPromise
     if (this._indexError) {
-      // Without an index the slug can never resolve; drop it so a later
-      // successful index build doesn't teleport the map unexpectedly
       console.warn(`Search: cannot resolve #${slug} — index unavailable`)
       this._pendingSlug = null
       return
@@ -230,14 +225,12 @@ class SearchControl implements maplibregl.IControl {
     }
     const entries = this._resolveFn(this._index.entries, slug)
     if (entries.length === 0) {
+      // Kept pending until the index is final: villages may still resolve it
       console.warn(`Search: no venue matches #${slug}`)
       if (indexFinal) {
-        // Dead link (typo or renamed venue): give up and revert the URL so a
-        // late village merge can't teleport the user afterwards
         this._pendingSlug = null
         this._urlHash?.setVenueSlug(null)
       }
-      // Otherwise kept pending: villages may still merge in and resolve it
       return
     }
     this._pendingSlug = null
@@ -383,8 +376,7 @@ class SearchControl implements maplibregl.IControl {
      are framed together. Shared by search selection and URL slug resolution. */
   _focusEntries(entries: SearchEntry[]) {
     this._setHighlights(entries)
-    // VENUE_MOVE marks these camera moves as venue-initiated so VenueURLHash
-    // doesn't treat them as the user navigating away
+    // VENUE_MOVE stops VenueURLHash treating these moves as navigating away
     if (entries.length === 1) {
       const entry = entries[0]
       this._map?.flyTo({ center: entry.coords, zoom: categoryZoom[entry.category] }, VENUE_MOVE)
@@ -405,7 +397,6 @@ class SearchControl implements maplibregl.IControl {
   }
 
   _select(entry: SearchEntry) {
-    // Set before the camera move so the flight's moveend writes the slug hash
     this._urlHash?.setVenueSlug(entry.slug)
     this._focusEntries([entry])
     this._afterSelection()
@@ -413,19 +404,14 @@ class SearchControl implements maplibregl.IControl {
 
   _selectAll() {
     if (this._urlHash) {
-      // Only mint a slug when a link recipient would see exactly what the
-      // sharer sees: the slug must resolve to the same set search() framed
-      // (search is fuzzy, resolveSlug is not — e.g. "stage" fuzzy-matches
-      // "Backstage" but #stage would not)
+      // Only mint a slug that resolves to exactly what search() framed, so a
+      // link recipient sees what the sharer saw (search is fuzzier than slugs)
       const slug = slugify(this._input.value.trim())
-      let roundTrips = false
-      if (isVenueSlug(slug) && this._index && this._resolveFn) {
-        const resolved = this._resolveFn(this._index.entries, slug)
-        const resolvedKeys = resolved.map((e) => e.slug + '@' + e.coords.join()).sort()
-        const resultKeys = this._results.map((e) => e.slug + '@' + e.coords.join()).sort()
-        roundTrips = resolved.length > 0 && resolvedKeys.join('|') === resultKeys.join('|')
-      }
-      this._urlHash.setVenueSlug(roundTrips ? slug : null)
+      const resolved =
+        isVenueSlug(slug) && this._index && this._resolveFn ? this._resolveFn(this._index.entries, slug) : []
+      const roundTrips =
+        resolved.length === this._results.length && resolved.every((entry) => this._results.includes(entry))
+      this._urlHash.setVenueSlug(roundTrips && resolved.length > 0 ? slug : null)
     }
     this._focusEntries(this._results)
     this._afterSelection()
