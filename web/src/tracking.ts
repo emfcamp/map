@@ -1,7 +1,7 @@
 import maplibregl from 'maplibre-gl'
 import type { Feature, FeatureCollection, Position } from 'geojson'
 import { el, mount } from 'redom'
-import { makeEntry } from './search/searchentry.ts'
+import { makeEntry, validCoords } from './search/searchentry.ts'
 import type { SearchCategory, SearchEntry } from './search/searchentry.ts'
 import './tracking.css'
 
@@ -297,7 +297,7 @@ export function trackingPosition(type: string, id: string): [number, number] | u
   if (!feature || !fresh(feature) || feature.geometry.type !== 'Point') return undefined
   const now = performance.now()
   const coords = moving(layer, id, now) ?? feature.geometry.coordinates
-  return [coords[0], coords[1]]
+  return validCoords(coords) ? [coords[0], coords[1]] : undefined
 }
 
 function disconnect() {

@@ -5,8 +5,6 @@ import { center } from '../style/map_style.ts'
 import { makeEntry, normalize } from './searchentry.ts'
 import type { SearchCategory, SearchEntry } from './searchentry.ts'
 
-export type { SearchCategory, SearchEntry, TrackedRef } from './searchentry.ts'
-
 export interface SearchIndex {
   entries: SearchEntry[]
   /* True when the site plan tile couldn't be fetched and the index only

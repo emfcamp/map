@@ -1,6 +1,7 @@
 import { el, mount } from 'redom'
 import maplibregl, { GeoJSONSource, LngLatBounds } from 'maplibre-gl'
-import type { SearchCategory, SearchEntry, SearchIndex } from './searchindex.ts'
+import type { SearchIndex } from './searchindex.ts'
+import type { SearchCategory, SearchEntry } from './searchentry.ts'
 import { trackingSearchEntries, trackingPosition, subscribeTrackingUpdates } from '../tracking.ts'
 
 const categoryZoom: Record<SearchCategory, number> = {
@@ -47,6 +48,8 @@ class SearchControl implements maplibregl.IControl {
   _activeIndex: number = -1
   _highlighted: SearchEntry[] = []
   _unsubscribeTracking?: () => void
+  _followFrame?: number
+  _lastHighlightKey?: string
 
   constructor() {
     this._toggleButton = el('button.search-toggle', {
@@ -311,20 +314,25 @@ class SearchControl implements maplibregl.IControl {
     this._input.removeAttribute('aria-activedescendant')
   }
 
+  /* Where an entry is right now: tracked entities may have moved since the
+     query, so read the live position and fall back to the query-time coords. */
+  _liveCoords(entry: SearchEntry): [number, number] {
+    return (entry.tracked && trackingPosition(entry.tracked.type, entry.tracked.id)) || entry.coords
+  }
+
   _select(entry: SearchEntry) {
     this._setHighlights([entry])
-    // Tracked entities may have moved since the query; fly to where they are now
-    const center = (entry.tracked && trackingPosition(entry.tracked.type, entry.tracked.id)) || entry.coords
-    this._map?.flyTo({ center, zoom: categoryZoom[entry.category] })
+    this._map?.flyTo({ center: this._liveCoords(entry), zoom: categoryZoom[entry.category] })
     this._afterSelection()
   }
 
   _selectAll() {
     const results = this._results
     this._setHighlights(results)
+    const first = this._liveCoords(results[0])
     const bounds = results.reduce(
-      (b, entry) => b.extend(entry.coords),
-      new LngLatBounds(results[0].coords, results[0].coords)
+      (b, entry) => b.extend(this._liveCoords(entry)),
+      new LngLatBounds(first, first)
     )
     this._map?.fitBounds(bounds, {
       padding: { top: 90, bottom: 50, left: 50, right: 50 },
@@ -341,33 +349,61 @@ class SearchControl implements maplibregl.IControl {
 
   _setHighlights(entries: SearchEntry[]) {
     this._highlighted = entries
-    // Subscribe to tracking updates only while a live entity is highlighted,
-    // so its halo follows it; unsubscribe once nothing tracked remains
-    const following = entries.some((entry) => entry.tracked)
-    if (following && !this._unsubscribeTracking) {
-      this._unsubscribeTracking = subscribeTrackingUpdates(() => this._renderHighlights())
-    } else if (!following && this._unsubscribeTracking) {
-      this._unsubscribeTracking()
-      this._unsubscribeTracking = undefined
-    }
+    this._syncFollow()
     this._renderHighlights()
   }
 
-  /* Rebuild the highlight source from the current highlight list, reading live
-     positions for tracked entries and dropping any that have gone away. */
+  /* Follow live entities only while one is highlighted: subscribe so the halo
+     tracks it, and tear the subscription down once nothing tracked remains. */
+  _syncFollow() {
+    const following = this._highlighted.some((entry) => entry.tracked)
+    if (following && !this._unsubscribeTracking) {
+      // Tracking fires per layer per frame; coalesce into one render per frame
+      this._unsubscribeTracking = subscribeTrackingUpdates(() => this._scheduleHighlightRender())
+    } else if (!following && this._unsubscribeTracking) {
+      this._unsubscribeTracking()
+      this._unsubscribeTracking = undefined
+      if (this._followFrame != null) {
+        cancelAnimationFrame(this._followFrame)
+        this._followFrame = undefined
+      }
+    }
+  }
+
+  _scheduleHighlightRender() {
+    if (this._followFrame != null) return
+    this._followFrame = requestAnimationFrame(() => {
+      this._followFrame = undefined
+      this._renderHighlights()
+    })
+  }
+
+  /* Rebuild the highlight source from the current list, reading live positions
+     for tracked entries. Entities that have expired or whose layer was switched
+     off resolve to no coords and are pruned, which also stops the follow once
+     nothing live is left. Skips the GPU upload when nothing actually moved. */
   _renderHighlights() {
     const source = this._map?.getSource('search_results') as GeoJSONSource | undefined
     if (!source) return
     const features: GeoJSON.Feature[] = []
+    const live: SearchEntry[] = []
     for (const entry of this._highlighted) {
       const coords = entry.tracked ? trackingPosition(entry.tracked.type, entry.tracked.id) : entry.coords
       if (!coords) continue
+      live.push(entry)
       features.push({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: coords },
         properties: { name: entry.displayName, category: entry.category },
       })
     }
+    if (live.length < this._highlighted.length) {
+      this._highlighted = live
+      this._syncFollow()
+    }
+    const key = JSON.stringify(features)
+    if (key === this._lastHighlightKey) return
+    this._lastHighlightKey = key
     source.setData({ type: 'FeatureCollection', features })
     this._toggleButton.classList.toggle('active', features.length > 0)
   }

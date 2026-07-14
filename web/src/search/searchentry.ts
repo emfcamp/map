@@ -31,9 +31,10 @@ export function normalize(s: string): string {
     .trim()
 }
 
-/* Village data is attendee-editable, so coordinates can't be trusted to be
-   well-formed; a bad entry must not break selection or bounds fitting */
-function validCoords(coords: unknown): coords is [number, number] {
+/* Village data is attendee-editable and live tracker positions arrive from an
+   external stream, so coordinates can't be trusted to be well-formed; a bad
+   entry must not break selection, bounds fitting or a flyTo. */
+export function validCoords(coords: unknown): coords is [number, number] {
   return (
     Array.isArray(coords) &&
     coords.length >= 2 &&
