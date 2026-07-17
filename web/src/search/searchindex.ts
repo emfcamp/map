@@ -3,7 +3,7 @@ import Pbf from 'pbf'
 import maplibregl, { GeoJSONSource } from 'maplibre-gl'
 import { center } from '../style/map_style.ts'
 
-export type SearchCategory = 'structure' | 'area' | 'camping' | 'parking' | 'gate' | 'village'
+export type SearchCategory = 'structure' | 'area' | 'camping' | 'parking' | 'gate' | 'village' | 'shower'
 
 export interface SearchEntry {
   displayName: string
@@ -11,6 +11,11 @@ export interface SearchEntry {
   category: SearchCategory
   coords: [number, number]
   importance: number
+  /* Crew-only feature: hidden from results unless the query mentions "crew",
+     so e.g. "kitchen" doesn't surface the Crew Kitchen. Shared features that
+     merely happen to name crew (e.g. "Long Stay / Crew" parking) are not
+     flagged, so they stay findable by their public name. */
+  crewOnly: boolean
 }
 
 export interface SearchIndex {
@@ -63,12 +68,14 @@ function makeEntry(
   importance: number
 ): SearchEntry | undefined {
   if (geometry?.type !== 'Point' || !validCoords(geometry.coordinates)) return undefined
+  const normalized = normalize(displayName)
   return {
     displayName,
-    normalized: normalize(displayName),
+    normalized,
     category,
     coords: geometry.coordinates as [number, number],
     importance,
+    crewOnly: /^crew\b/.test(normalized),
   }
 }
 
@@ -86,13 +93,25 @@ const extractors: LayerExtractor[] = [
   {
     sourceLayer: 'structure_centroid',
     category: 'structure',
-    displayName: (props) => (props.name ? String(props.name) : undefined),
+    // Shower-named structures are back-of-house (e.g. crew showers). Public
+    // showers are their own `showers`-typed area (below), so keep any
+    // shower-named structure out of public search.
+    displayName: (props) =>
+      props.name && !/shower/i.test(String(props.name)) ? String(props.name) : undefined,
     importance: (props) => (typeof props.importance === 'number' ? props.importance : 0),
   },
   {
     sourceLayer: 'areas_event_centroid',
+    category: 'shower',
+    displayName: (props) => (props.type === 'showers' && props.name ? String(props.name) : undefined),
+    importance: constImportance,
+  },
+  {
+    sourceLayer: 'areas_event_centroid',
     category: 'area',
-    displayName: (props) => (props.name && props.type !== 'toilets' ? String(props.name) : undefined),
+    // toilets are unlabelled; showers are indexed separately as their own category
+    displayName: (props) =>
+      props.name && props.type !== 'toilets' && props.type !== 'showers' ? String(props.name) : undefined,
     importance: constImportance,
   },
   {
@@ -241,9 +260,10 @@ function score(entry: SearchEntry, query: string): number {
 export function search(index: SearchEntry[], query: string, limit: number = 20): SearchEntry[] {
   const q = normalize(query)
   if (!q) return []
+  const wantsCrew = q.includes('crew')
   return index
     .map((entry) => ({ entry, score: score(entry, q) }))
-    .filter((item) => item.score > 0)
+    .filter((item) => item.score > 0 && (wantsCrew || !item.entry.crewOnly))
     .sort(
       (a, b) =>
         b.score - a.score ||

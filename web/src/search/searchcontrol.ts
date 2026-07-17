@@ -6,6 +6,7 @@ const categoryZoom: Record<SearchCategory, number> = {
   structure: 18,
   gate: 17.5,
   village: 17.5,
+  shower: 17,
   area: 17,
   camping: 16.5,
   parking: 16.5,
@@ -22,6 +23,7 @@ const categoryLabel: Record<SearchCategory, string> = {
   parking: 'parking',
   gate: 'gate',
   village: 'village',
+  shower: 'shower',
 }
 
 const emptyCollection: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
