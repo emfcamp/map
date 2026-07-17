@@ -794,6 +794,21 @@ export const layers: LayerSpecificationWithZIndex[] = [
     },
   },
   {
+    id: 'grid_labels',
+    type: 'symbol',
+    source: 'site_plan',
+    'source-layer': 'grid_labels',
+    layout: {
+      'text-field': '{label}',
+      'text-size': 20,
+      'text-font': ['Open Sans Regular'],
+    },
+    paint: {
+      'text-halo-color': 'rgba(241, 241, 241, 0.8)',
+      'text-halo-width': 3,
+    },
+  },
+  {
     id: 'villages_symbol',
     type: 'circle',
     source: 'villages',
