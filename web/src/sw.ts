@@ -13,7 +13,7 @@ function register(match_url: string, strategy: any) {
   registerRoute(({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith(prefix + match_url), strategy)
 }
 
-register('tiles', new StaleWhileRevalidate())
+register('tiles', new StaleWhileRevalidate({ cacheName: 'tiles-20260717' }))
 register('icons', new CacheFirst())
 
 try {
