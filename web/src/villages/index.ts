@@ -2,6 +2,7 @@ import maplibregl from 'maplibre-gl'
 import { el, mount, setStyle, unmount } from 'redom'
 import './villages.css'
 import { PlaceVillageDialog } from './components'
+import { apiBase } from '../util'
 
 export type Village = Record<string, any>
 
@@ -20,11 +21,7 @@ class VillagesLayer {
   constructor(source: string, click_layer: string) {
     this._source = source
     this._layer = click_layer
-    if (import.meta.env.DEV) {
-      this._api_url = 'http://localhost:2342'
-    } else {
-      this._api_url = 'https://www.emfcamp.org'
-    }
+    this._api_url = apiBase()
 
     this.button = el('button', { title: 'Place village' })
     this._wrapper = el('div', this.button, {

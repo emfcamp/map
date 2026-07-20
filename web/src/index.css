@@ -13,18 +13,26 @@ body {
   margin: 0;
   overflow: hidden;
 }
-header {
-  display: block;
+#top-left-stack {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 2;
-  padding: 4px;
-  padding-top: 2px;
-  background-color: rgba(255, 255, 255, 0.75);
-  border-radius: 0px 0px 4px 0px;
-  border-right: 1px #ddd solid;
-  border-bottom: 1px #ddd solid;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+header {
+  display: flex;
+  flex-direction: column;
+  position: static;
+  z-index: 2;
+  margin: 8px 0 0 8px;
+  padding: 8px 12px 10px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
   font-size: 10px;
 }
 
@@ -33,6 +41,7 @@ emf-map-app {
   height: 100%;
 }
 
+.maplibregl-ctrl.maplibregl-ctrl-attrib,
 header {
   backdrop-filter: blur(3px) saturate(80%);
 }

@@ -1,3 +1,7 @@
+export function apiBase(): string {
+  return import.meta.env.DEV ? '' : 'https://www.emfcamp.org'
+}
+
 export function roundPosition(coords: [number, number], zoom: number): [number, number] {
   zoom = Math.round(zoom * 100) / 100
   const precision = Math.ceil((zoom * Math.LN2 + Math.log(512 / 360)) / Math.LN10),

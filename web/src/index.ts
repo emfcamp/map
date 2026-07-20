@@ -2,7 +2,9 @@ import './index.css'
 import { registerSW } from 'virtual:pwa-register'
 import { css, LitElement, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
+import maplibregl from 'maplibre-gl'
 import { EMFMap } from './components/map'
+import Search, { SearchResult } from './search/search'
 import DistanceMeasure from './components/distancemeasure.ts'
 import VillagesEditor from './villages/index.ts'
 import InstallControl from './installcontrol.ts'
@@ -39,12 +41,30 @@ export class EMFMapApp extends LitElement {
 
     map.addControl(new VillagesEditor('villages', 'villages_symbol'), 'top-right')
 
+    const search = new Search()
+    search.addEventListener('select', (e: Event) => {
+      const { lngLat } = (e as CustomEvent<SearchResult>).detail
+      this.flyTo(mapComponent, new maplibregl.LngLat(lngLat[0], lngLat[1]))
+    })
+    document.getElementById('top-left-stack')?.appendChild(search)
+
     // Display export control only on browsers which are likely to be desktop browsers
     if (window.matchMedia('(min-width: 600px)').matches) {
       map.addControl(new ExportControl(loadIcons), 'top-right')
     }
 
     map.addControl(new GridPosition('gridsquares'), 'bottom-right')
+  }
+
+  flyTo(mapComponent: EMFMap, lngLat: maplibregl.LngLat) {
+    const map = mapComponent.map
+    if (!map) return
+    map.flyTo({
+      center: lngLat,
+      zoom: Math.max(map.getZoom(), 18),
+      essential: true,
+    })
+    mapComponent.markerComponent!.setLocation(lngLat)
   }
 }
 
