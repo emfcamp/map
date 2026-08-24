@@ -508,6 +508,20 @@ export const layers: LayerSpecificationWithZIndex[] = [
     },
   },
   {
+    id: 'showers',
+    type: 'symbol',
+    source: 'site_plan',
+    minzoom: 16,
+    maxzoom: 20,
+    'source-layer': 'areas_event_centroid',
+    filter: ['==', 'type', 'showers'],
+    layout: {
+      'icon-image': 'showers',
+      'icon-size': ['interpolate', ['linear'], ['zoom'], 16, 0.4, 20, 1.2],
+      'icon-allow-overlap': true,
+    },
+  },
+  {
     id: 'toilets',
     type: 'symbol',
     source: 'site_plan',
@@ -841,6 +855,7 @@ export const layers: LayerSpecificationWithZIndex[] = [
       'text-halo-blur': 1,
     },
   },
+  /*
   {
     id: 'phones_symbol',
     type: 'symbol',
@@ -854,6 +869,7 @@ export const layers: LayerSpecificationWithZIndex[] = [
       'icon-anchor': 'center',
     },
   },
+  */
   {
     id: 'vehicles_symbol',
     type: 'symbol',
